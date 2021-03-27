@@ -303,6 +303,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
+LimitNOFILE=700000
 LogRateLimitIntervalSec=0
 User=sol
 Environment=PATH=/bin:/usr/bin:/home/sol/.local/share/solana/install/active_release/bin
