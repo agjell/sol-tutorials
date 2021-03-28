@@ -301,7 +301,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-Restart=always
+Restart=on-failure
 RestartSec=1
 LimitNOFILE=700000
 LogRateLimitIntervalSec=0
