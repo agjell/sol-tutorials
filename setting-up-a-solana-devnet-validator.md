@@ -92,7 +92,7 @@ sudo rm /swap.img
 
 Then create a new swap file that will hold 16 GB:
 ```bash
-sudo fallocate -l 16G /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1M count=16K
 ```
 
 We need to set permissions for it to ensure access is limited to “root”:
