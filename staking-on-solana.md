@@ -13,9 +13,9 @@ This step is optional, as you may already have a wallet you can use. For the sak
 solana-keygen new -o ~/staker-wallet-keypair.json
 ```
 
-I save the password and seed phrase somewhere securely. Then I airdrop 10 SOL into it, that I will stake on a validator later:
+I save the password and seed phrase somewhere securely. Then I airdrop 1 SOL into it, that I will stake on a validator later:
 ```bash
-solana airdrop 10 ~/staker-wallet-keypair.json
+solana airdrop 1 ~/staker-wallet-keypair.json
 ```
 
 Solana replies with the balance, but we can verify the balance manually like this:
@@ -30,14 +30,14 @@ Now for the stake account. We don't need to set passwords for stake accounts, as
 solana-keygen new --no-passphrase -o ~/stake-account-keypair.json
 ```
 
-Solana replies with the public key of the account. I copy it and save it somewhere safe. Then I use the keypair I just made as a base to create the stake account, and transfer 5 SOL to it from my wallet. I also assign my wallet as the withdraw authority and the stake authority of the account:
+Solana replies with the public key of the account. I copy it and save it somewhere safe. Then I use the keypair I just made as a base to create the stake account, and transfer 0.5 SOL to it from my wallet. I also assign my wallet as the withdraw authority and the stake authority of the account:
 ```bash
 solana create-stake-account \
   --fee-payer ~/staker-wallet-keypair.json \
   --stake-authority ~/staker-wallet-keypair.json \
   --withdraw-authority ~/staker-wallet-keypair.json \
   --from ~/staker-wallet-keypair.json \
-  ~/stake-account-keypair.json 5
+  ~/stake-account-keypair.json 0.5
 ```
 
 If the transaction succeeds I may delete the keypair file, provided I've taken note of the stake account public key. If I haven't got the public key I must retrieve it and save it before I delete the keypair:
@@ -83,12 +83,12 @@ When the cooldown period is over I can withdraw my stake. First I'll check the b
 solana balance <STAKE_ACCOUNT_PUBKEY>
 ```
 
-Then I'll withdraw 10 SOL back to my wallet:
+Then I'll withdraw 0.5 SOL back to my wallet:
 ```bash
 solana withdraw-stake \
   --fee-payer ~/staker-wallet-keypair.json \
   --withdraw-authority ~/staker-wallet-keypair.json \
-  <STAKE_ACCOUNT_PUBKEY> ~/staker-wallet-keypair.json 10
+  <STAKE_ACCOUNT_PUBKEY> ~/staker-wallet-keypair.json 0.5
 ```
 
 ## More staking resources
