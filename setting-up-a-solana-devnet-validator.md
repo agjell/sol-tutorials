@@ -179,9 +179,9 @@ Let’s get started. I first create the wallet:
 solana-keygen new -o ~/wallet-keypair.json
 ```
 
-Then I airdrop 10 SOL into it (this black magic is not possible on mainnet, for obvious reasons):
+Then I airdrop 1 SOL into it (this black magic is not possible on mainnet, for obvious reasons):
 ```bash
-solana airdrop 10 ~/wallet-keypair.json
+solana airdrop 1 ~/wallet-keypair.json
 ```
 
 Solana replies with the balance, but we can verify the balance manually like this:
@@ -201,10 +201,10 @@ Which I need to assign to my Solana configuration:
 solana config set -k ~/validator-keypair.json
 ```
 
-Because the validator pays the voting fees, I need to give it some SOL. I can either airdrop or transfer to it. To simulate a real life operation I will transfer 5 SOL from the wallet:
+Because the validator pays the voting fees, I need to give it some SOL. I can either airdrop or transfer to it. To simulate a real life operation I will transfer 0.5 SOL from the wallet:
 ```bash
 solana transfer --fee-payer ~/wallet-keypair.json \
-  --from ~/wallet-keypair.json ~/validator-keypair.json 5
+  --from ~/wallet-keypair.json ~/validator-keypair.json 0.5
 ```
 
 Then I can check the validator account balance. Note that we don't need to provide the account identity here, because Solana uses the one from the configuration (that we just set):
