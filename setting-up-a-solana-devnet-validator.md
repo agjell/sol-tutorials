@@ -118,7 +118,7 @@ I have now created the RAM drive and swap file, and can move to the installation
 
 ## Install Solana
 
-As I mentioned above, you can either install the prebuilt binaries or build your own binaries. I have only included instructions to install the prebuilt ones here, as this will work for most people. I have made another tutorial on how to build from source [here](https://github.com/agjell/sol-tutorials/blob/main/building-solana-from-source.md).
+As I mentioned above, you can either install the prebuilt binaries or build your own binaries. I have only included instructions to install the prebuilt ones here, as this will work for most people. I have made another tutorial on how to build from source [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
 
 ### Install prebuilt binaries
 
