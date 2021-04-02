@@ -107,7 +107,12 @@ Then I run a command to verify Solana is working:
 solana --version
 ```
 
-If it replies with the updated version tag I call it a day. After a few days of stable operation I delete the binaries from the old installation:
+If it replies with the updated version tag I delete the source files:
+```bash
+rm -rf ~/solana-src-v1.6.2
+```
+
+After a few days of stable operation I delete the binaries from the old installation:
 ```bash
 rm -rf ~/.local/share/solana/install/releases/1.6.1
 ```
