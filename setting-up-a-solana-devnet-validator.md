@@ -1,16 +1,15 @@
+
 # Setting up a Solana devnet validator
 
 ## Introduction
 
-I made this tutorial mainly for myself, to help me remember the steps I performed to set up my Solana devnet validator. Please note that I am a Linux novice, so I really have no idea what I’m talking about in most of this tutorial. I will not be held responsible for the shipwreck your system may or may not be after following any of the instructions here. Still, I have tried my best to provide correct, understandable and user friendly information, that I hope can benefit others.
-
-Most of the instructions below are compiled from the official [Solana docs](https://docs.solana.com/) and the replies I’ve gotten from helpful people in the [Solana Discord](https://discordapp.com/invite/pquxPsq). Go to any of those places to resolve any issues you may have. I will not provide information about the Solana blockchain here, as [their own webpage](https://solana.com/) is a better source for that.
+Setting up a devnet validator was the first thing I did to become familiar with Solana. I started by following the [official documentation](https://docs.solana.com/running-validator), and asked people in the [Solana Discord](https://discordapp.com/invite/pquxPsq) when I stubled into issues. The official docs were a bit outdated when I set up for the first time. This is to be expected in a rapidly developing project, as code maintenance is usually prioritized higher than document maintenance. To simplify the setup process for myself later, I decided to make this detailed step-by-step tutorial. Hopefully it can be useful to others as well.
 
 ## Hardware requirements
 
 Running a devnet validator does not require a high end system. This makes devnet an ideal playground to experiment and get to know Solana, before considering a mainnet setup. Hardware requirements for mainnet are _a lot_ higher, and can be found [here](https://docs.solana.com/running-validator/validator-reqs). My devnet validator is running on an old computer with a quad core CPU, 16 GB RAM and a 256 GB SATA SSD.
 
-You _will_ need an SSD, as a mechanical drive will not be able to handle the amount of IOPS (input/output operations per second) that Solana demands. SATA SSDs are only usable in devnet. Mainnet validators will need NVMe SSDs with high speed, high IOPS and high endurance ratings.
+You _will_ need an SSD, as a mechanical drive will not be able to handle the amount of IOPS (input/output operations per second) that Solana demands. SATA SSDs are only usable in devnet. Running testnet and mainnet validators requires NVMe SSDs with high speed, high IOPS and high endurance ratings.
 
 If you have a very old CPU you may need to build Solana from source. Be aware of this if the prebuilt binaries crash at launch. The prebuilt binaries should run in most modern systems without problems, though.
 
@@ -22,7 +21,7 @@ Remember to tick off on “Install OpenSSH server” during the Ubuntu installat
 
 The first thing I do after logging into a fresh installation is to install updates:
 ```bash
-sudo apt update && sudo apt upgrade -y
+sudo apt update && sudo apt upgrade --assume-yes
 ```
 
 Solana does not require root privileges, and It’s considered poor practice to run Solana as “root". It’s also considered good to practice the principle of least privilege. This basically means that no user, process or application should ever have higher privileges than they need to fulfill their intended purpose. I therefore create a new user, “sol", which will be running the validator service as a regular user:
@@ -32,7 +31,7 @@ sudo adduser sol
 
 After creating the new user, I use that account as my “base”. By that I mean that I always log in as “sol” initially. If I need to run a command that require root privileges, I switch to an account with those privileges by running `su username` from the console. Replace “username” with whatever username you assigned during the Ubuntu installation. To get back to the “sol” account I run `exit` in the console. This makes it easy to switch between users without having to log out and back in. Some of the instructions below require root privileges, but I have written where that applies.
 
-## RAM drive and swap spillover (optional)
+## Create RAM drive and swap spillover (optional)
 
 As I mentioned above, Solana require a high amount of IOPS. This is especially true for processing accounts data. To reduce wear on my SSD I prefer storing accounts in a [RAM drive](https://en.wikipedia.org/wiki/RAM_drive). Especially since I’m already using an old and worn SSD, which may fail at any time.
 
@@ -51,12 +50,12 @@ sudo mkdir /mnt/ramdrive
 
 Second, I append the RAM drive configuration in [fstab](https://help.ubuntu.com/community/Fstab) to make it permanent (i.e. appear on system boot). Access is limited to the user “sol”, and size set to 6 GB, as this is currently enough for devnet accounts data:
 ```bash
-echo 'tmpfs /mnt/ramdrive tmpfs rw,size=6G,user=sol 0 0' | sudo tee -a /etc/fstab > /dev/null
+echo 'tmpfs /mnt/ramdrive tmpfs rw,size=6G,user=sol 0 0' | sudo tee --append /etc/fstab > /dev/null
 ```
 
 Then I reload fstab and mount all entries:
 ```bash
-sudo mount -av
+sudo mount --all --verbose
 ```
 
 ### Create a swap spillover file
@@ -85,40 +84,50 @@ I can see there's a 4 GB swap file called `/swap.img`. Let's disable it:
 sudo swapoff /swap.img
 ```
 
-And delete the leftovers:
+And delete the leftover file:
 ```bash
 sudo rm /swap.img
 ```
 
-Then create a new swap file that will hold 16 GB:
+I also need to delete delete the reference to `swap.img` from fstab:
+```bash
+sudo sed --in-place '/swap.img/d' /etc/fstab
+```
+
+Then I create a new swap file that will hold 16 GB:
 ```bash
 sudo dd if=/dev/zero of=/swapfile bs=1M count=16K
 ```
 
-We need to set permissions for it to ensure access is limited to “root”:
+I need to set permissions for it to ensure access is limited to “root”:
 ```bash
 sudo chmod 600 /swapfile
 ```
 
-And then enable it:
+And configure the file as a swap area:
 ```bash
 sudo mkswap /swapfile
 ```
 
-To make the it permanent (i.e. appear on every system boot) we need to add it to fstab:
+For the swap area to appear on every system boot I need to add it to fstab:
 ```bash
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab > /dev/null
+echo '/swapfile none swap sw 0 0' | sudo tee --append /etc/fstab > /dev/null
 ```
 
 To ensure the system is using RAM as much as possible, and swap as little as possible, I decrease “[swappiness](https://help.ubuntu.com/community/SwapFaq#What_is_swappiness_and_how_do_I_change_it.3F)” to 1. This is probably not needed in a modern system. I only do this to protect my worn SSD.
 ```bash
-echo 'vm.swappiness=1' | sudo tee -a /etc/sysctl.conf > /dev/null
+echo 'vm.swappiness=1' | sudo tee --append /etc/sysctl.conf > /dev/null
+```
+
+Finally I enable all swaps from fstab by running:
+```bash
+sudo swapon --all --verbose
 ```
 I have now created the RAM drive and swap file, and can move to the installation phase.
 
 ## Install Solana
 
-As I mentioned above, you can either install the prebuilt binaries or build your own binaries. I have only included instructions to install the prebuilt ones here, as this will work for most people. I have made another tutorial on how to build from source [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
+As I mentioned above, you can either install the prebuilt binaries or build your own binaries. I have only included instructions to install the prebuilt binaries in this tutorial, as this will work for most people. However, I have also made a tutorial on building binaries from source, which you can find [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
 
 ### Install prebuilt binaries
 
@@ -140,18 +149,18 @@ In this section I’ll connect the validator to the Solana network and set up th
 ### Joining devnet
 
 First I configure Solana to connect to devnet:
-```bash
-solana config set -u http://devnet.solana.com
+```
+solana config set --url devnet
 ```
 
 Then I verify that the cluster is reachable by checking the total transaction count:
-```bash
+```
 solana transaction-count
 ```
 
 We can also probe the cluster to see the current gossip network nodes (press **Ctrl+C** to stop):
-```bash
-solana-gossip spy -n devnet.solana.com:8001
+```
+solana-gossip spy --entrypoint devnet.solana.com:8001
 ```
 
 ### Setting up accounts
@@ -175,52 +184,52 @@ When creating system accounts and voting accounts we need to provide a password.
 #### Wallet
 
 Let’s get started. I first create the wallet:
-```bash
-solana-keygen new -o ~/wallet-keypair.json
+```
+solana-keygen new --outfile ~/wallet-keypair.json
 ```
 
 Then I airdrop 1 SOL into it (this black magic is not possible on mainnet, for obvious reasons):
-```bash
+```
 solana airdrop 1 ~/wallet-keypair.json
 ```
 
 Solana replies with the balance, but we can verify the balance manually like this:
-```bash
+```
 solana balance ~/wallet-keypair.json
 ```
 
 #### Validator identity
 
 Second is the validator identity:
-```bash
-solana-keygen new -o ~/validator-keypair.json
+```
+solana-keygen new --outfile ~/validator-keypair.json
 ```
 
 Which I need to assign to my Solana configuration:
-```bash
-solana config set -k ~/validator-keypair.json
+```
+solana config set --keypair ~/validator-keypair.json
 ```
 
 Because the validator pays the voting fees, I need to give it some SOL. I can either airdrop or transfer to it. To simulate a real life operation I will transfer 0.5 SOL from the wallet:
-```bash
+```
 solana transfer --fee-payer ~/wallet-keypair.json \
   --from ~/wallet-keypair.json ~/validator-keypair.json 0.5
 ```
 
 Then I can check the validator account balance. Note that we don't need to provide the account identity here, because Solana uses the one from the configuration (that we just set):
-```bash
+```
 solana balance
 ```
 
 #### Vote account
 
 Third is the vote account:
-```bash
-solana-keygen new -o ~/vote-account-keypair.json
+```
+solana-keygen new --outfile ~/vote-account-keypair.json
 ```
 
 Then I tell Solana that this is a vote account, so it inherits the properties of that account type. I also set my wallet as an authorized withdrawer:
-```bash
+```
 solana create-vote-account \
   --authorized-withdrawer ~/wallet-keypair.json \
   ~/vote-account-keypair.json ~/validator-keypair.json
@@ -245,7 +254,7 @@ nano ~/start-validator.sh
 ```
 
 Nano will create and open an empty file. Inside it I paste the following:
-```bash
+```
 #!/bin/bash
 exec solana-validator \
  --entrypoint entrypoint.devnet.solana.com:8001 \
@@ -261,7 +270,7 @@ exec solana-validator \
  --log ~/log/solana-validator.log \
  --accounts /mnt/ramdrive/solana-accounts \
  --ledger ~/validator-ledger \
- --limit-ledger-size 50000000 \
+ --limit-ledger-size 50000000
 ```
 
 I won’t go through the flags and options, but you can study them by running `solana-validator --help`. I will say this, though: prepending `solana-validator` with `exec` is necessary to make log rotation work properly. More about that later. Press **Ctrl+S** to save the file and **Ctrl+X** to exit Nano.
@@ -441,7 +450,7 @@ sudo systemctl status sol.service
 ```
 
 After a few minutes I check if the validator has caught up with the rest of the network:
-```bash
+```
 solana catchup ~/validator-keypair.json
 ```
 If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
@@ -450,26 +459,26 @@ If it replies with an error, I give it ten minutes and try again. If it still gi
 
 There are many commands you can use to monitor your validator. I’ll list some of them here. To display log entries which contain “error” or “warn” you can run:
 ```bash
-grep -iE 'error|warn' ~/log/solana-validator.log
+grep --ignore-case --extended-regexp 'error|warn' ~/log/solana-validator.log
 ```
 
 Verify your nodes' presence in the cluster (press **Ctrl+C** to stop):
-```bash
-solana-gossip spy -n devnet.solana.com:8001
+```
+solana-gossip spy --entrypoint devnet.solana.com:8001
 ```
 
 Show block production and skipped slots:
-```bash
+```
 solana block-production
 ```
 
 Show info about current epoch:
-```bash
+```
 solana epoch-info
 ```
 
 Show list of validators:
-```bash
+```
 solana validators
 ```
 
