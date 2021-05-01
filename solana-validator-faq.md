@@ -4,21 +4,21 @@ _Written by Andrebo, with assistance from Zantetsu._
 
 Every day we get lots of similar questions about validating in the Solana discord. In this FAQ we have tried to address most of them. Before asking in the discord, please try to find answers to your questions below.
 
- - Can I mine SOL?
- - Can anyone become a validator?
- - Do I need any skills?
- - Can I validate on a Windows computer?
- - What are the hardware requirements?
- - What are the network requirements?
- - Can I run a validator from my home?
- - How do I set up a validator?
- - Does it cost anything to validate?
- - How do I make my rewards as a validator?
- - How much stake is needed to be profitable, and can future rewards be calculated?
- - How can I attract stake to my validator?
- - Can I get stake from the Solana foundation?
- - What is Tour de SOL and how can I participate?
- - Where can I find more information about Solana?
+ - [Can I mine SOL?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#can-i-mine-sol)
+ - [Can anyone become a validator?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#can-anyone-become-a-validator)
+ - [Do I need any skills?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#do-i-need-any-skills)
+ - [Can I validate on a Windows computer?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#can-i-validate-on-a-windows-computer)
+ - [What are the hardware requirements?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#what-are-the-hardware-requirements)
+ - [What are the network requirements?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#what-are-the-network-requirements)
+ - [Can I run a validator from my home?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#can-i-run-a-validator-from-my-home)
+ - [How do I set up a validator?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#how-do-i-set-up-a-validator)
+ - [Does it cost anything to validate?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#does-it-cost-anything-to-validate)
+ - [How do I make my rewards as a validator?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#how-do-i-make-my-rewards-as-a-validator)
+ - [How much stake is needed to be profitable, and can future rewards be calculated?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#how-much-stake-is-needed-to-be-profitable-and-can-future-rewards-be-calculated)
+ - [How can I attract stake to my validator?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#how-can-i-attract-stake-to-my-validator)
+ - [Can I get stake from the Solana foundation?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#can-i-get-stake-from-the-solana-foundation)
+ - [What is Tour de SOL and how can I participate?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#what-is-tour-de-sol-and-how-can-i-participate)
+ - [Where can I find more information about Solana?](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md#where-can-i-find-more-information-about-solana)
 
 
 ## Can I mine SOL?
