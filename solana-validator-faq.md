@@ -8,8 +8,8 @@ Every day we get lots of similar questions about validating in the Solana discor
 3. [Do I need any skills?](#3)
 4. [Can I validate on a Windows computer?](#4)
 5. [What are the hardware requirements?](#5)
-   a. [Are the requirements for mainnet, testnet and devnet the same? Can I get by with less?](#5a)
-   b. [How big is the ledger? How much storage space do I need for my validator?](#5b)
+   * [Are the requirements for mainnet, testnet and devnet the same? Can I get by with less?](#5a)
+   * [How big is the ledger? How much storage space do I need for my validator?](#5b)
 6. [What are the network requirements?](#6)
 7. [Can I run a validator from my home?](#7)
 8. [How do I set up a validator?](#8)
@@ -23,18 +23,21 @@ Every day we get lots of similar questions about validating in the Solana discor
 
 
 <div id="1"></div>
+
 ## 1. Can I mine SOL?
 
 No. SOL cannot be mined. Miners are part of proof-of-work blockchains. Solana is based on proof-of-stake, where a “validator” is roughly the equivalent of a miner (but still very different). You’ll find lots of information about these concepts on YouTube, Wikipedia and other sites. You should know the basics before reading any further.
 
 
 <div id="2"></div>
+
 ## 2. Can anyone become a validator?
 
 Yes. The Solana network is permissionless, so anyone can become a validator. But please continue reading this FAQ to get more knowledge about running a validator node.
 
 
 <div id="3"></div>
+
 ## 3. Do I need any skills?
 
 Yes. You need to be comfortable with command line interfaces and Linux administration. These skills are necessary for operating a validator node day-to-day. All validators have a responsibility to run their node in a secure manner, which requires sufficient knowledge about the operating system, the hardware, the network configuration and the relevant risks. There is no way around this!
@@ -43,12 +46,14 @@ One way to learn is by [setting up a validator on devnet](https://github.com/agj
 
 
 <div id="4"></div>
+
 ## 4. Can I validate on a Windows computer?
 
 No (well, sort of). The Solana validation runtime does not yet work on Windows. Technically you can validate through a Linux virtual machine on a Windows computer, but you would still need the Linux skills mentioned above, in addition to the skills needed to run a virtual machine securely. You would also lose some performance to the host operating system.
 
 
 <div id="5"></div>
+
 ## 5. What are the hardware requirements?
 
 You can find the official hardware requirements in the [Solana docs](https://docs.solana.com/running-validator/validator-reqs).
@@ -57,6 +62,7 @@ You can find the official hardware requirements in the [Solana docs](https://doc
 
 
 <div id="5a"></div>
+
 ### 5a. Are the requirements for mainnet, testnet and devnet the same? Can I get by with less?
 
 #### Mainnet
@@ -75,24 +81,28 @@ Again, the requirements are officially the same as for mainnet. Though devnet us
 
 
 <div id="5b"></div>
+
 ### 5b. How big is the ledger? How much storage space do I need for my validator?
 
 You don't have room for the ledger, and validators do not need to store the whole ledger. You control how much of the ledger you want to store by passing the `--limit-ledger-size` option when you start your validator. If you don't specify a number it uses the default value of 200 million. This requires roughly ~500 GB. The minimum value you can pass is 50 million (`--limit-ledger-size 50000000`). If you want to store an epoch worth of ledger you need around 260-270 million.
 
 
 <div id="6"></div>
+
 ## 6. What are the network requirements?
 
 The official requirement states 1 Gbit/s. Mainnet validators should abide by this. Current real-life usage indicates a minimum of 300 Mbit/s up and down. Egress is often higher than ingress. Highly staked nodes can have three to four times more egress than ingress traffic.
 
 
 <div id="7"></div>
+
 ## 7. Can I run a validator from my home?
 
 Running a validator requires awareness about any risks relevant to its secure and continuous operation, and running it from home even more so. A data center will usually ensure the necessary physical protection (access/theft/fire/flood etc.) in addition to high network and power availability. At home you need to mitigate those risks yourself. Will your node or any network components be accessible to others? Do you have kids or pets? Are there a lot of break-ins where you live? Is your power grid stable? Do you have close to 100 % internet uptime? Is your area susceptible to natural disasters? You should think about all of these risks before you run a validator from home. Outsourcing some risk to a data center may be worth the cost.
 
 
 <div id="8"></div>
+
 ## 8. How do I set up a validator?
 
  1. Install Ubuntu
@@ -103,18 +113,21 @@ You can also see this tutorial on [how to set up a devnet validator](https://git
 
 
 <div id="9"></div>
+
 ## 9. Does it cost anything to validate?
 
 Yes. A fee is charged for every transaction on the blockchain. A validator is expected to vote on all the blocks it receives, to help achieve network consensus. Every vote is a transaction, with the fee being charged to the validator. The voting costs for running a validator is currently ~1.1 SOL per day. A validator needs sufficient stake to make more in rewards than it spends on voting fees.
 
 
 <div id="10"></div>
+
 ## 10. How do I make my rewards as a validator?
 
 Solana is based on proof-of-stake, which is fundamentally different from proof-of-work. In a proof-of-stake blockchain a validator needs stake delegated to it to make rewards. More stake equals more rewards, because validators with higher stake are chosen to write new transactions to the ledger more often. The assumption is that nodes with higher stake are more trustworthy, because people have trusted them with their tokens. Stable returns are the result of high uptime, valid voting at a high rate, and producing valid blocks within their required time slot. The validator has incentive to be a good actor because stakers can withdraw their stake at any time. Losing stake means losing rewards. The stakers incentive is to get yield on their tokens. The yield depends on the commission the validator charges. You can read more about Staking in [this section of the docs](https://docs.solana.com/staking).
 
 
 <div id="11"></div>
+
 ## 11. How much stake is needed to be profitable, and can future rewards be calculated?
 
 The amount of stake a validator needs to be profitable depends on multiple factors:
@@ -130,12 +143,14 @@ Unfortunately there is no official way of calculating rewards. However, Zantetsu
 
 
 <div id="12"></div>
+
 ## 12. How can I attract stake to my validator?
 
 That’s for you to figure out! As rewards can be considerable, you should have more than enough incentive to attract stake. Being a resource for the community is a good start. Building something useful, suggesting amendments to the code, filing bug reports or supporting people in the Discord are actions that can attract attention (and stake) to validators.
 
 
 <div id="13"></div>
+
 ## 13. Can I get stake from the Solana foundation?
 
 No (not at this time). Previously it was possible for validators who participated successfully in a certain number of [Tour de SOL](https://docs.solana.com/tour-de-sol) (TdS) stages to get an invitation to mainnet. The invitation included delegation of stake by way of an automatic staking bot. However, the foundation delegation program is currently [being revised](https://forums.solana.com/t/summary-of-validator-compensation-programs/1269) and is paused indefinitely:
@@ -143,12 +158,14 @@ No (not at this time). Previously it was possible for validators who participate
 
 
 <div id="14"></div>
+
 ## 14. What is Tour de SOL and how can I participate?
 
 Tour de SOL is Solanas incentivized testnet, where eligible validators can participate to test their skills and compete to be best. The tour runs in stages, just like Le Tour. Registration and KYC (know your customer) approval is required for all participants. US entities and individuals cannot participate. You can get information about registration [here](https://solana.com/validator-registration).
 
 
 <div id="15"></div>
+
 ## 15. Where can I find more information about Solana?
 
  - [The official website](https://solana.com/)
