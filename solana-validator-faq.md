@@ -84,7 +84,7 @@ Again, the requirements are officially the same as for mainnet. Though devnet us
 
 ### 5b. How big is the ledger? How much storage space do I need for my validator?
 
-You don't have room for the ledger, and validators do not need to store the whole ledger. You control how much of the ledger you want to store by passing the `--limit-ledger-size` option when you start your validator. If you don't specify a number it uses the default value of 200 million. This requires roughly ~500 GB. The minimum value you can pass is 50 million (`--limit-ledger-size 50000000`). If you want to store an epoch worth of ledger you need around 260-270 million.
+The ledger is infinitely big. You won't need to store the whole ledger, and you probably wouldn't have room for it anyway. Validators only store part of the ledger. You control how much of the ledger you store by passing the `--limit-ledger-size` option when you start your validator. If you don't specify a number it uses the default value of 200 million shreds. This requires ~400-500 GB of storage space. The minimum value you can pass is 50 million shreds (`--limit-ledger-size 50000000`). If you want to store an epoch worth of ledger (which can be useful for monitoring purposes) you need to specify ~260-270 million shreds.
 
 
 <div id="6"></div>
