@@ -74,6 +74,8 @@ You can find the official hardware requirements in the [Solana docs](https://doc
 
 ### 6a. Are the requirements for mainnet, testnet and devnet the same? Can I get by with less?
 
+You may want to have a look at the [difference between devnet, testnet and mainnet in the docs](https://docs.solana.com/clusters) before going any further. Unless you already know the difference, that is.
+
 #### Mainnet
 
 Mainnet validators should follow the official requirements. Running a mainnet validator comes with responsibilities. Real people with real assets rely on the continuous operation and well being of mainnet. To ensure this, it's critical that the network and its validators have enough performance headroom. The team is also working to increase performance, which is not possible if there is no headroom to scale into. It is worth mentioning that some mainnet validators run successfully with 64 GB RAM, although the recommendation states ≥128 GB.
