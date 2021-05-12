@@ -1,5 +1,7 @@
 # Staking on Solana
 
+## Introduction
+
 A staker is someone that has SOL and wants to put them to work to collect rewards. They can do this by staking SOL on a validator. A validator, on the other hand, needs SOL staked on it to earn rewards for itself (or its' owner, to be precise). More stake equals more rewards, because more stake means a validator is chosen to write new transactions to the ledger more often. This means that stakers and validators can benefit from each other. You can read more about staking in the [docs](https://docs.solana.com/staking).
 
 This guide is only intended for people operating in Solana devnet or testnet. Although the procedure will be somewhat similar for mainnet, my experience and knowledge of mainnet operations is too limited to say.
@@ -91,6 +93,23 @@ solana withdraw-stake \
   <STAKE_ACCOUNT_PUBKEY> ~/staker-wallet-keypair.json 0.5
 ```
 
+## Merging stake accounts
+
+We can merge two stake accounts on certain conditions (see [here](https://docs.solana.com/staking/stake-accounts#merging-stake-accounts)). If we're merging stake accounts that has activated stake (live accounts) they both need to
+
+ - have the same stake authority
+ - be associated with the same vote account
+ - have identical vote credits (being active on the same vote account for at least one epoch)
+
+If the conditions are met I can merge my stake accounts by running:
+```bash
+solana merge-stake \
+  --fee-payer ~/staker-wallet-keypair.json \
+  --stake-authority ~/staker-wallet-keypair.json \
+  <MERGE_TO_THIS_STAKE_PUBKEY> <MERGE_FROM_THIS_STAKE_PUBKEY>
+```
+
+
 ## More staking resources
 
 There is much more to staking than what I have shown above. The following Solana docs contains a lot of useful information:
@@ -100,3 +119,4 @@ There is much more to staking than what I have shown above. The following Solana
  - [Manage stake accounts](https://docs.solana.com/cli/manage-stake-accounts)
  - [Validator stake](https://docs.solana.com/running-validator/validator-stake)
  - [Staking rewards](https://docs.solana.com/implemented-proposals/staking-rewards)
+ - 
