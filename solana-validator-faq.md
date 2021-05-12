@@ -114,7 +114,7 @@ Running a validator requires awareness about any risks relevant to its secure an
 
 ## 9. How do I set up a validator?
 
- 1. Install Ubuntu
+ 1. [Install Ubuntu](https://ubuntu.com/tutorials/install-ubuntu-server)
  2. [Install the Solana command line interface (CLI)](https://docs.solana.com/cli/install-solana-cli-tools)
  3. [Configure and start the validator software](https://docs.solana.com/running-validator/validator-start)
 
