@@ -1,9 +1,23 @@
-
 # Setting up a Solana devnet validator
+
+ 1. [Introduction](#introduction)
+ 2. [Hardware requirements](#hardware-requirements)
+ 3. [Install Ubuntu server](#install-ubuntu-server)
+ 4. [Create RAM drive and swap spillover (optional)](#create-ram-drive-and-swap-spillover-optional)
+ 5. [Install Solana](#install-solana)
+ 6. [Configure Solana](#configure-solana)
+ 7. [Create startup script and system services](#create-startup-script-and-system-services)
+ 8. [Set up log rotation (optional)](#set-up-log-rotation-optional)
+ 9. [Starting the validator](#starting-the-validator)
+ 10. [Useful commands](#useful-commands)
+
 
 ## Introduction
 
-Setting up a devnet validator was the first thing I did to become familiar with Solana. I started by following the [official documentation](https://docs.solana.com/running-validator), and asked people in the [Solana Discord](https://discordapp.com/invite/pquxPsq) when I stubled into issues. The official docs were a bit outdated when I set up for the first time. This is to be expected in a rapidly developing project, as code maintenance is usually prioritized higher than document maintenance. To simplify the setup process for myself later, I decided to make this detailed step-by-step tutorial. Hopefully it can be useful to others as well.
+Setting up a devnet validator was the first thing I did to become familiar with Solana. I started by following the [official documentation](https://docs.solana.com/running-validator), and asked people in the [Solana Discord](https://discordapp.com/invite/pquxPsq) when I stubled into issues. The official docs were a bit outdated when I set up for the first time. This is to be expected in a rapidly developing project, as code maintenance is usually prioritized higher than documentation. To simplify the setup process for myself later, I decided to make this detailed step-by-step tutorial. Hopefully it can be useful to others as well.
+
+If you have general questions about running a validator, you may find answers to them in [this FAQ](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md).
+
 
 ## Hardware requirements
 
@@ -13,9 +27,10 @@ You _will_ need an SSD, as a mechanical drive will not be able to handle the amo
 
 If you have a very old CPU you may need to build Solana from source. Be aware of this if the prebuilt binaries crash at launch. The prebuilt binaries should run in most modern systems without problems, though.
 
+
 ## Install Ubuntu server
 
-First we need to install Ubuntu server. The installation can be downloaded from [their website](https://ubuntu.com/download/server). You can use [Rufus](https://rufus.ie/) to create a bootable USB drive for installing Ubuntu (tutorial [here](https://ubuntu.com/tutorials/create-a-usb-stick-on-windows)).
+First we need to [install Ubuntu server](https://ubuntu.com/tutorials/install-ubuntu-server). The installation can be downloaded from [their website](https://ubuntu.com/download/server). You can use [Rufus](https://rufus.ie/) to create a bootable USB drive for installing Ubuntu (tutorial [here](https://ubuntu.com/tutorials/create-a-usb-stick-on-windows)).
 
 Remember to tick off on “Install OpenSSH server” during the Ubuntu installation process if you want to access your validator remotely. If you forget it during the main installation you can follow [this](https://ubuntu.com/server/docs/service-openssh) guide afterwards. You can read about how to connect to the server remotely over SSH [here](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/).
 
@@ -30,6 +45,7 @@ sudo adduser sol
 ```
 
 After creating the new user, I use that account as my “base”. By that I mean that I always log in as “sol” initially. If I need to run a command that require root privileges, I switch to an account with those privileges by running `su username` from the console. Replace “username” with whatever username you assigned during the Ubuntu installation. To get back to the “sol” account I run `exit` in the console. This makes it easy to switch between users without having to log out and back in. Some of the instructions below require root privileges, but I have written where that applies.
+
 
 ## Create RAM drive and swap spillover (optional)
 
@@ -48,9 +64,10 @@ The RAM drive will act as the primary storage for accounts. To create it, I firs
 sudo mkdir /mnt/ramdrive
 ```
 
-Second, I append the RAM drive configuration in [fstab](https://help.ubuntu.com/community/Fstab) to make it permanent (i.e. appear on system boot). Access is limited to the user “sol”, and size set to 6 GB, as this is currently enough for devnet accounts data:
+Second, I append the RAM drive configuration in [fstab](https://help.ubuntu.com/community/Fstab) to make it permanent (i.e. appear on system boot). Access is limited to the user “sol”, and size set to 16 GB, as this is currently more than enough for devnet accounts data:
 ```bash
-echo 'tmpfs /mnt/ramdrive tmpfs rw,size=6G,user=sol 0 0' | sudo tee --append /etc/fstab > /dev/null
+echo 'tmpfs /mnt/ramdrive tmpfs rw,noexec,nodev,nosuid,noatime,size=16G,user=sol 0 0' | \
+  sudo tee --append /etc/fstab > /dev/null
 ```
 
 Then I reload fstab and mount all entries:
@@ -64,9 +81,9 @@ sudo mount --all --verbose
 ! Perform as user with root privileges
 ```
 
-In some cases Solana may need more space for the accounts data than the 6 GB I assigned to the RAM drive. For those cases I need a [swap](https://help.ubuntu.com/community/SwapFaq) file that can act as reserve. If the RAM drive capacity is exceeded, the excess data will spill over into swap and ensure the validator can continue running.
+In some cases my system may need more RAM than I have available. For those cases I need a [swap](https://help.ubuntu.com/community/SwapFaq) file that can act as reserve. If RAM utilization expands beyond my physical RAM, the excess data will spill over into swap and ensure the validator can continue running.
 
-Any spillover into swap should be temporary, so I monitor if the RAM drive and swap space starts filling up. If that happens there is likely something wrong.
+Any spillover into swap should be temporary, so I usually monitor if the RAM drive and swap space starts filling up. If that happens there is likely something wrong.
 
 Ubuntu server creates a swap file by default, but I want a bigger one to ensure I have enough space. So I delete the existing one and create a new one. To do this, I first fetch a list of the current swap files in the system:
 ```bash
@@ -114,9 +131,12 @@ For the swap area to appear on every system boot I need to add it to fstab:
 echo '/swapfile none swap sw 0 0' | sudo tee --append /etc/fstab > /dev/null
 ```
 
-To ensure the system is using RAM as much as possible, and swap as little as possible, I decrease “[swappiness](https://help.ubuntu.com/community/SwapFaq#What_is_swappiness_and_how_do_I_change_it.3F)” to 1. This is probably not needed in a modern system. I only do this to protect my worn SSD.
+To ensure the system is using RAM as much as possible, and swap as little as possible, I decrease “[swappiness](https://help.ubuntu.com/community/SwapFaq#What_is_swappiness_and_how_do_I_change_it.3F)” to 1 and reload `sysctl`. This is probably not needed in a modern system. I only do this to protect my worn SSD.
 ```bash
 echo 'vm.swappiness=1' | sudo tee --append /etc/sysctl.conf > /dev/null
+```
+```bash
+sudo sysctl -p
 ```
 
 Finally I enable all swaps from fstab by running:
@@ -137,7 +157,7 @@ As I mentioned above, you can either install the prebuilt binaries or build your
 
 This is by far the easiest way to install Solana. Make sure you replace the version number with the most recent one from the Solana [github](https://github.com/solana-labs/solana/releases/) page. You can also copy the most recent script execution command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools).
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.6.1/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.6.8/install)"
 ```
 
 After the installation is complete I close and reopen the terminal, or log out and in again (as “sol”). I do this to enable the environment variables that were added to `~/.profile` during the installation. These tell the system to look for binaries in the Solana installation directory, so I can run the Solana commands from any directory in the system.
@@ -236,9 +256,9 @@ solana create-vote-account \
 ```
 That's it for accounts!
 
-## Create script and system services
+## Create startup script and system services
 
-To launch Solana I’m using a shell script that contains all the flags and options needed for my configuration (a “wrapper” script). The script is executed by the Solana service, which make sure Solana starts automatically on every system boot. Solana also calls upon a tuner daemon, to make recommended adjustments to some system settings. Below I will take you through how I set all that up.
+To launch Solana I’m using a shell script that contains all the flags and options needed for my configuration (a “wrapper” script). The script is executed by the Solana service, which make sure Solana starts automatically on every system boot. Solana also calls upon a system tuner daemon, to make recommended adjustments to some system settings. Below I will take you through how I set all that up.
 
 ### Create wrapper script
 
@@ -360,13 +380,13 @@ sudo systemctl daemon-reload
 ```
 The services are now ready to run. Just one more (optional) step before take-off.
 
-## Rotate logs (optional)
+## Set up log rotation (optional)
 
 ```diff
 ! Perform as user with root privileges
 ```
 
-This step is optional, but recommended. Solana is a log hog. Just one days' worth of logging is 1 GB+. Still, logs are nice to have for trouble shooting, and required if seeking help from the team. To make the logs easier to handle I rotate them every day. I also keep a weeks' worth of logs, in case I need to trouble shoot.
+This step is optional, but recommended. Solana is a log hog. Just one days' worth of devnet logging is 1 GB+. Still, logs are nice to have for trouble shooting, and required if seeking help from the team. To make the logs easier to handle I rotate them every day. I also keep a weeks' worth of logs, in case I need to trouble shoot.
 
 “Logrotate” takes care of the log rotation for us. It automatically creates a new log at 00:00 and deletes the excess. To activate logrotate for my validator log I need to create a configuration file for it:
 ```bash
@@ -392,9 +412,9 @@ sudo systemctl restart logrotate
 ```
 Log rotation is ready to roll.
 
-## Starting Solana
+## Starting the validator
 
-After completing all the steps above I usually reboot my server (`sudo reboot`), although I suppose it’s not really necessary. Then I do some quick checks, before I start the services.
+After completing all the steps above I usually reboot my server (`sudo reboot`), although I suppose it’s not really necessary. It's still nice to verify that I have set up `fstab` correctly. After rebooting I do some quick checks before I start the services.
 
 ### Verify swap file and RAM drive presence
 
@@ -413,14 +433,14 @@ NAME      TYPE SIZE USED PRIO
 /swapfile file  16G   0B   -2
 ```
 
-I look for the “name” and “size” to correspond to what I set previously. Then I use `mount` to check the RAM drive. I utilize `grep` to only display mount points with “ramdrive” in their name:
+I look for the “name” and “size” to correspond to what I set previously. Then I use `mount` to check the RAM drive. I utilize `grep` to only print lines with “ramdrive” in their name:
 ```bash
 mount | grep ramdrive
 ```
 
 My system replies:
 ```
-tmpfs on /mnt/ramdrive type tmpfs (rw,relatime,size=6291456k,user=sol)
+tmpfs on /mnt/ramdrive type tmpfs (rw,nosuid,nodev,noexec,noatime,size=16777216k,user=sol)
 ```
 
 I typically look at the size and the user association.
@@ -431,7 +451,7 @@ I typically look at the size and the user association.
 ! Perform as user with root privileges
 ```
 
-Finally, it's time to start the services! The systuner service is first, since the validator service calls upon it:
+Finally, it's time to start the services! The systuner service is first, since the validator application calls upon it:
 ```bash
 sudo systemctl enable --now systuner.service
 ```
@@ -451,35 +471,46 @@ sudo systemctl status sol.service
 
 After a few minutes I check if the validator has caught up with the rest of the network:
 ```
-solana catchup ~/validator-keypair.json
+solana catchup --our-localhost
 ```
 If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
 
 ## Useful commands
 
-There are many commands you can use to monitor your validator. I’ll list some of them here. To display log entries which contain “error” or “warn” you can run:
+Here are some commands I use to monitor my validator. To display log entries which contain “error” or “warn” I can run:
 ```bash
 grep --ignore-case --extended-regexp 'error|warn' ~/log/solana-validator.log
 ```
 
-Verify your nodes' presence in the cluster (press **Ctrl+C** to stop):
+Verify my nodes' presence in the cluster (press **Ctrl+C** to stop):
 ```
 solana-gossip spy --entrypoint devnet.solana.com:8001
 ```
 
-Show block production and skipped slots:
+Monitor my node (press **Ctrl+C** to stop):
 ```
-solana block-production
+solana-validator --ledger ~/validator-ledger monitor
 ```
 
-Show info about current epoch:
+Show block production and skipped slots for my node:
+```
+solana block-production -u localhost | grep $(solana address)
+```
+
+Export my leader schedule for the current epoch to a text file:
+```
+solana leader-schedule -u localhost | grep $(solana address) \
+  > ~/leader-schedule-epoch-$(solana epoch)-$(solana address).txt
+```
+
+Show info about the current epoch:
 ```
 solana epoch-info
 ```
 
-Show list of validators:
+List all validators:
 ```
 solana validators
 ```
 
-You can also check live metrics for the network and your node here: [https://metrics.solana.com:3000/](https://metrics.solana.com:3000/)
+I can also check live metrics for the network and my node here: [https://metrics.solana.com:3000/](https://metrics.solana.com:3000/)
