@@ -2,8 +2,6 @@
 
 A staker is someone that has SOL and wants to put them to work to collect rewards. They can do this by staking SOL on a validator. A validator, on the other hand, needs SOL staked on it to earn rewards for itself (or its' owner, to be precise). More stake equals more rewards, because more stake means a validator is chosen to write new transactions to the ledger more often. This means that stakers and validators can benefit from each other. You can read more about staking in the [docs](https://docs.solana.com/staking).
 
-This guide is only intended for people operating in Solana devnet or testnet. Although the procedure will be somewhat similar for mainnet, my experience and knowledge of mainnet operations is too limited to say.
-
 The process of staking involves creating a stake account, transferring SOL to it and delegating it to a validator. SOL placed in a stake account is simply referred to as "stake".
 
 ## Create wallet (optional)
