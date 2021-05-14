@@ -471,7 +471,7 @@ sudo systemctl status sol.service
 
 After a few minutes I check if the validator has caught up with the rest of the network:
 ```
-solana catchup --our-localhost
+solana catchup ~/validator-keypair.json
 ```
 If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
 
@@ -494,12 +494,12 @@ solana-validator --ledger ~/validator-ledger monitor
 
 Show block production and skipped slots for my node:
 ```
-solana block-production -u localhost | grep $(solana address)
+solana block-production | grep $(solana address)
 ```
 
 Export my leader schedule for the current epoch to a text file:
 ```
-solana leader-schedule -u localhost | grep $(solana address) \
+solana leader-schedule | grep $(solana address) \
   > ~/leader-schedule-epoch-$(solana epoch)-$(solana address).txt
 ```
 
