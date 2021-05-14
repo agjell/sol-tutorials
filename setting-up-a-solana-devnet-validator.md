@@ -171,7 +171,7 @@ In this section I’ll connect the validator to the Solana network and set up th
 
 First I configure Solana to connect to devnet:
 ```
-solana config set --url devnet
+solana config set --url https://api.devnet.solana.com
 ```
 
 Then I verify that the cluster is reachable by checking the total transaction count:
