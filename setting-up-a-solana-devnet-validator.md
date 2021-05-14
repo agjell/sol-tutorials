@@ -1,3 +1,4 @@
+
 # Setting up a Solana devnet validator
 
  1. [Introduction](#introduction)
@@ -180,7 +181,7 @@ solana transaction-count
 
 We can also probe the cluster to see the current gossip network nodes (press **Ctrl+C** to stop):
 ```
-solana-gossip spy --entrypoint devnet.solana.com:8001
+solana-gossip spy --entrypoint api.devnet.solana.com:8001
 ```
 
 ### Setting up accounts
@@ -277,7 +278,7 @@ Nano will create and open an empty file. Inside it I paste the following:
 ```
 #!/bin/bash
 exec solana-validator \
- --entrypoint entrypoint.devnet.solana.com:8001 \
+ --entrypoint api.devnet.solana.com:8001 \
  --trusted-validator dv1LfzJvDF7S1fBKpFgKoKXK5yoSosmkAdfbxBo1GqJ \
  --expected-genesis-hash EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG \
  --rpc-port 8899 \
@@ -292,7 +293,7 @@ exec solana-validator \
  --limit-ledger-size
 ```
 
-I won’t go through the flags and options, but you can study them by running `solana-validator --help`. I will say this, though: prepending `solana-validator` with `exec` is necessary to make log rotation work properly. More about that later. Press **Ctrl+S** to save the file and **Ctrl+X** to exit Nano.
+I won’t go through the flags and options, but you can study them by running `solana-validator --help`. I will say this, though: prepending `solana-validator` with `exec` is necessary to make log rotation work properly. More about that later. Also, to store the minimum amount of ledger you have to set `--limit-ledger-size 50000000`. Press **Ctrl+S** to save the file and **Ctrl+X** to exit Nano.
 
 We need to make the script executable, or else it won’t launch:
 ```bash
@@ -483,7 +484,7 @@ grep --ignore-case --extended-regexp 'error|warn' ~/log/solana-validator.log
 
 Verify my nodes' presence in the cluster (press **Ctrl+C** to stop):
 ```
-solana-gossip spy --entrypoint devnet.solana.com:8001
+solana-gossip spy --entrypoint api.devnet.solana.com:8001
 ```
 
 Monitor my node (press **Ctrl+C** to stop):
