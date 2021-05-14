@@ -282,7 +282,6 @@ exec solana-validator \
  --expected-genesis-hash EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG \
  --rpc-port 8899 \
  --dynamic-port-range 8000-8010 \
- --no-port-check \
  --no-untrusted-rpc \
  --wal-recovery-mode skip_any_corrupted_record \
  --identity ~/validator-keypair.json \
@@ -290,7 +289,7 @@ exec solana-validator \
  --log ~/log/solana-validator.log \
  --accounts /mnt/ramdrive/solana-accounts \
  --ledger ~/validator-ledger \
- --limit-ledger-size 50000000
+ --limit-ledger-size
 ```
 
 I won’t go through the flags and options, but you can study them by running `solana-validator --help`. I will say this, though: prepending `solana-validator` with `exec` is necessary to make log rotation work properly. More about that later. Press **Ctrl+S** to save the file and **Ctrl+X** to exit Nano.
