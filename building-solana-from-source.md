@@ -1,5 +1,10 @@
 # Building Solana from source
 
+ 1. [Introduction](#introduction)
+ 2. [Initial installation](#initial-installation)
+ 3. [Update existing installation](#update-existing-installation)
+
+
 ## Introduction
 
 Some people need or want to build Solana from source. I *had* to build from source because my CPU was lacking instructions that the prebuilt binaries relies upon (AVX2). This made the prebuilt Solana binaries crash. By building Solana myself the binaries were adapted to the hardware I was using.
@@ -7,6 +12,7 @@ Some people need or want to build Solana from source. I *had* to build from sour
 While there are advantages building from source, there are also disadvantages. It takes more time and requires more manual work. This not only applies to initial installations, but for every software update as well.
 
 To make the process somewhat easier I made this tutorial, where I provide instructions for building Solana from source, installing it and performing updates on existing installations.
+
 
 ## Initial installation
 
@@ -42,18 +48,18 @@ Rust is now ready to run.
 
 Now for the build. I clone the current release code from GitHub into `~/solana-src-<version>`. I replace the version number with the current one from the Solana [GitHub](https://github.com/solana-labs/solana/releases/) page:
 ```bash
-git clone https://github.com/solana-labs/solana.git --branch v1.6.1 ~/solana-src-v1.6.1
+git clone https://github.com/solana-labs/solana.git --branch v1.6.8 ~/solana-src-v1.6.8
 ```
 
-Then I run the `cargo-install-all.sh` script to build and install Solana. I select `~/.local/share/solana/install/releases/1.6.1` as my installation directory, to mimic the directory structure of the prebuilt binaries.
+Then I run the `cargo-install-all.sh` script to build and install Solana. I select `~/.local/share/solana/install/releases/1.6.8` as my installation directory, to mimic the directory structure of the prebuilt binaries.
 ```bash
-./solana-src-v1.6.1/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/1.6.1
+./solana-src-v1.6.8/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/1.6.8
 ```
 The script will automatically check for dependencies and download the missing ones. During this it may produce errors like `error: toolchain '1.50.0-x86_64-unknown-linux-gnu' is not installed`. These errors can be ignored, provided the downloads succeed. The build process will take some time. When it's done it provides a path variable to use the binaries. I ignore this, as I make a more useful one in the following step.
 
-When installing the *prebuilt* binaries, the installer automatically creates a symbolic link from the installation directory (`*/1.6.1`) to another directory (`*/active_release`). This static link can be used in service files and environment variables, so these won't have to be amended on every Solana update. When building from source I have to create that link manually:
+When installing the *prebuilt* binaries, the installer automatically creates a symbolic link from the installation directory (`*/1.6.8`) to another directory (`*/active_release`). This static link can be used in service files and environment variables, so these won't have to be amended on every Solana update. When building from source I have to create that link manually:
 ```bash
-ln --symbolic ~/.local/share/solana/install/releases/1.6.1 ~/.local/share/solana/install/active_release
+ln --symbolic ~/.local/share/solana/install/releases/1.6.8 ~/.local/share/solana/install/active_release
 ```
 
 To make sure I can run the Solana commands from any directory I need to add a path variable to `~/.profile`. Note that I use the symbolic link from above here:
@@ -70,9 +76,10 @@ solana --version
 
 The system should respond with the version I just installed. If it doesn't, I retrace my steps and trouble-shoot. When I have verified Solana is working, I delete the directory containing the source files:
 ```bash
-rm -rf ~/solana-src-v1.6.1
+rm -rf ~/solana-src-v1.6.8
 ```
 Installation complete! The remaining configuration may be done with the help of my [setup tutorial](https://github.com/agjell/sol-tutorials/blob/master/setting-up-a-solana-devnet-validator.md#configure-solana).
+
 
 ## Update existing installation
 ```diff
@@ -88,18 +95,18 @@ rustup update
 
 Then I clone the new release (find the most recent one on [GitHub](https://github.com/solana-labs/solana/releases/)):
 ```bash
-git clone https://github.com/solana-labs/solana.git --branch v1.6.2 ~/solana-src-v1.6.2
+git clone https://github.com/solana-labs/solana.git --branch v1.6.9 ~/solana-src-v1.6.9
 ```
 
 Followed by the build and installation process:
 ```bash
-./solana-src-v1.6.2/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/1.6.2
+./solana-src-v1.6.9/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/1.6.9
 ```
 
 Next I replace the symbolic link, pointing it to the new installation. I need to use `--force` and `--no-dereference` to overwrite the old link:
 ```bash
 ln --force --no-dereference --symbolic \
-  ~/.local/share/solana/install/releases/1.6.2 ~/.local/share/solana/install/active_release
+  ~/.local/share/solana/install/releases/1.6.9 ~/.local/share/solana/install/active_release
 ```
 
 Then I run a command to verify Solana is working:
@@ -109,11 +116,11 @@ solana --version
 
 If it replies with the updated version tag I delete the source files:
 ```bash
-rm -rf ~/solana-src-v1.6.2
+rm -rf ~/solana-src-v1.6.9
 ```
 
 After a few days of stable operation I delete the binaries from the old installation:
 ```bash
-rm -rf ~/.local/share/solana/install/releases/1.6.1
+rm -rf ~/.local/share/solana/install/releases/1.6.8
 ```
 That's it!
