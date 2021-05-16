@@ -170,17 +170,17 @@ In this section I’ll connect the validator to the Solana network and set up th
 ### Joining devnet
 
 First I configure Solana to connect to devnet:
-```
+```bash
 solana config set --url https://api.devnet.solana.com
 ```
 
 Then I verify that the cluster is reachable by checking the total transaction count:
-```
+```bash
 solana transaction-count
 ```
 
 We can also probe the cluster to see the current gossip network nodes (press **Ctrl+C** to stop):
-```
+```bash
 solana-gossip spy --entrypoint api.devnet.solana.com:8001
 ```
 
@@ -205,52 +205,52 @@ When creating system accounts and voting accounts we need to provide a password.
 #### Wallet
 
 Let’s get started. I first create the wallet:
-```
+```bash
 solana-keygen new --outfile ~/wallet-keypair.json
 ```
 
 Then I airdrop 1 SOL into it (this black magic is not possible on mainnet, for obvious reasons):
-```
+```bash
 solana airdrop 1 ~/wallet-keypair.json
 ```
 
 Solana replies with the balance, but we can verify the balance manually like this:
-```
+```bash
 solana balance ~/wallet-keypair.json
 ```
 
 #### Validator identity
 
 Second is the validator identity:
-```
+```bash
 solana-keygen new --outfile ~/validator-keypair.json
 ```
 
 Which I need to assign to my Solana configuration:
-```
+```bash
 solana config set --keypair ~/validator-keypair.json
 ```
 
 Because the validator pays the voting fees, I need to give it some SOL. I can either airdrop or transfer to it. To simulate a real life operation I will transfer 0.5 SOL from the wallet:
-```
+```bash
 solana transfer --fee-payer ~/wallet-keypair.json \
   --from ~/wallet-keypair.json ~/validator-keypair.json 0.5
 ```
 
 Then I can check the validator account balance. Note that we don't need to provide the account identity here, because Solana uses the one from the configuration (that we just set):
-```
+```bash
 solana balance
 ```
 
 #### Vote account
 
 Third is the vote account:
-```
+```bash
 solana-keygen new --outfile ~/vote-account-keypair.json
 ```
 
 Then I tell Solana that this is a vote account, so it inherits the properties of that account type. I also set my wallet as an authorized withdrawer:
-```
+```bash
 solana create-vote-account \
   --authorized-withdrawer ~/wallet-keypair.json \
   ~/vote-account-keypair.json ~/validator-keypair.json
@@ -275,7 +275,7 @@ nano ~/start-validator.sh
 ```
 
 Nano will create and open an empty file. Inside it I paste the following:
-```
+```bash
 #!/bin/bash
 exec solana-validator \
  --entrypoint api.devnet.solana.com:8001 \
@@ -470,7 +470,7 @@ sudo systemctl status sol.service
 ```
 
 After a few minutes I check if the validator has caught up with the rest of the network:
-```
+```bash
 solana catchup ~/validator-keypair.json
 ```
 If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
@@ -483,33 +483,33 @@ grep --ignore-case --extended-regexp 'error|warn' ~/log/solana-validator.log
 ```
 
 Verify my nodes' presence in the cluster (press **Ctrl+C** to stop):
-```
+```bash
 solana-gossip spy --entrypoint api.devnet.solana.com:8001
 ```
 
 Monitor my node (press **Ctrl+C** to stop):
-```
+```bash
 solana-validator --ledger ~/validator-ledger monitor
 ```
 
 Show block production and skipped slots for my node:
-```
+```bash
 solana block-production | grep $(solana address)
 ```
 
 Export my leader schedule for the current epoch to a text file:
-```
+```bash
 solana leader-schedule | grep $(solana address) \
   > ~/leader-schedule-epoch-$(solana epoch)-$(solana address).txt
 ```
 
 Show info about the current epoch:
-```
+```bash
 solana epoch-info
 ```
 
 List all validators:
-```
+```bash
 solana validators
 ```
 
