@@ -39,6 +39,7 @@ Version|  Run 1 |  Run 2 |  Run 3 | Average|Variance| Note
 :----- | -----: | -----: | -----: | -----: | -----: | :--------------------------------------
 1.7.1  |  68809 |  64800 |  63526 |  65712 |  7,7 % |
 1.7.0  |  70616 |  66914 |  64766 |  67432 |  8,3 % | Significant regression from 1.6.x
+1.6.12 |  97274 |  94613 |  91405 |  94431 |  6,0 % |
 1.6.11 |  92858 |  91452 |  87618 |  90642 |  5,6 % |
 1.6.10 |  97333 |  93641 |  91792 |  94255 |  5,7 % |
 1.6.9  |  93111 |  88321 |  85482 |  88971 |  8,2 % |
@@ -71,13 +72,13 @@ Version|  Run 1 |  Run 2 |  Run 3 | Average|Variance| Note
 
 I made this cheat sheet for people wanting to benchmark their system.
 
-First up is installing prerequisites, for which you need root privileges. This command is for people running Ubuntu:
+First you need to install prerequisites, for which you need root privileges. This command is for people running Ubuntu:
 ```bash
 sudo apt update && sudo apt install -y \
   libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make gcc
 ```
 
-Then install rustup:
+Then you need to install rustup:
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
