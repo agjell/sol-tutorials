@@ -37,6 +37,7 @@ It's worth noting that the margin of error is likely a few thousand TPS. The sma
 
 Version|  Run 1 |  Run 2 |  Run 3 | Average|Variance| Note
 :----- | -----: | -----: | -----: | -----: | -----: | :--------------------------------------
+1.7.3  |  62417 |  62751 |  60984 |  62051 |  2.8 % |
 1.7.2  |  69076 |  65467 |  61830 |  65458 | 10.5 % |
 1.7.1  |  68809 |  64800 |  63526 |  65712 |  7.7 % |
 1.7.0  |  70616 |  66914 |  64766 |  67432 |  8.3 % | Significant regression from 1.6.x
