@@ -20,7 +20,7 @@ Every day we get lots of similar questions about validating in the Solana discor
 13. [How can I attract stake to my validator?](#13)
 14. [Can I get stake from the Solana foundation?](#14)
 15. [What is slashing, and what is the likelihood of my validator getting slashed?](#15)
-16. [What is Tour de SOL and how can I participate?](#16)
+16. [What is Tour de SOL?](#16)
 17. [Where can I find more information about Solana?](#17)
 
 
@@ -164,8 +164,7 @@ That’s for you to figure out! As rewards can be considerable, you should have 
 
 ## 14. Can I get stake from the Solana foundation?
 
-No (not at this time). Previously it was possible for validators who participated successfully in a certain number of [Tour de SOL](https://docs.solana.com/tour-de-sol) (TdS) stages to get an invitation to mainnet. The invitation included delegation of stake by way of an automatic staking bot. However, the foundation delegation program is currently [being revised](https://forums.solana.com/t/summary-of-validator-compensation-programs/1269) and is paused indefinitely:
-> The Solana Foundation is re-evaluating the criteria needed to receive and maintain a delegation from the Foundation for eligible Mainnet Beta validators, and is re-implementing our staking tools and monitoring solutions to make the delegation behavior and requirements more transparent. Until this solution is implemented, the Foundation has decided to pause the addition of new validator nodes to its delegation program.
+Yes, you may be eligible to get stake via the [Solana Foundation Delegation Program](https://solana.foundation/delegation-program). Check out their [FAQ](https://solana.foundation/faq) for more information.
 
 
 <div id="15"></div>
@@ -177,11 +176,12 @@ The following is stated about slashing in the [docs](https://docs.solana.com/sta
 
 There is currently zero likelihood of a validator getting slashed, as slashing is not yet implemented. You can read more about slashing in the docs [here](https://docs.solana.com/proposals/slashing) and [here](https://docs.solana.com/proposals/optimistic-confirmation-and-slashing).
 
+
 <div id="16"></div>
 
-## 16. What is Tour de SOL and how can I participate?
+## 16. What is Tour de SOL?
 
-Tour de SOL is Solanas incentivized testnet, where eligible validators can participate to test their skills and compete to be best. The tour runs in stages, just like Le Tour. Registration and KYC (know your customer) approval is required for all participants. US entities and individuals cannot participate. You can get information about registration [here](https://solana.com/validator-registration).
+Tour de SOL (TdS) was Solanas incentivized testnet program, where people were compensated for running testnet validators. Tour de SOL is permanently closed, but its function has been transfered to the [Solana Foundation Delegation Program](#14).
 
 
 <div id="17"></div>
