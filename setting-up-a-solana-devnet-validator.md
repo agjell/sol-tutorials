@@ -233,7 +233,8 @@ solana config set --keypair ~/validator-keypair.json
 
 Because the validator pays the voting fees, I need to give it some SOL. I can either airdrop or transfer to it. To simulate a real life operation I will transfer 0.5 SOL from the wallet:
 ```bash
-solana transfer --fee-payer ~/wallet-keypair.json \
+solana transfer --allow-unfunded-recipient \
+  --fee-payer ~/wallet-keypair.json \
   --from ~/wallet-keypair.json ~/validator-keypair.json 0.5
 ```
 
@@ -252,8 +253,7 @@ solana-keygen new --outfile ~/vote-account-keypair.json
 Then I tell Solana that this is a vote account, so it inherits the properties of that account type. I also set my wallet as an authorized withdrawer:
 ```bash
 solana create-vote-account \
-  --authorized-withdrawer ~/wallet-keypair.json \
-  ~/vote-account-keypair.json ~/validator-keypair.json
+  ~/vote-account-keypair.json ~/validator-keypair.json ~/wallet-keypair.json
 ```
 That's it for accounts!
 
