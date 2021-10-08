@@ -1,10 +1,9 @@
-
 # Setting up a Solana devnet validator
 
  1. [Introduction](#introduction)
  2. [Hardware requirements](#hardware-requirements)
  3. [Install Ubuntu server](#install-ubuntu-server)
- 4. [Create RAM drive and swap spillover (optional)](#create-ram-drive-and-swap-spillover-optional)
+ 4. [Create RAM disk and swap spillover (optional)](#create-ram-disk-and-swap-spillover-optional)
  5. [Install Solana](#install-solana)
  6. [Configure Solana](#configure-solana)
  7. [Create startup script and system services](#create-startup-script-and-system-services)
@@ -45,29 +44,29 @@ Solana does not require root privileges, and It’s considered poor practice to 
 sudo adduser sol
 ```
 
-After creating the new user, I use that account as my “base”. By that I mean that I always log in as “sol” initially. If I need to run a command that require root privileges, I switch to an account with those privileges by running `su username` from the console. Replace “username” with whatever username you assigned during the Ubuntu installation. To get back to the “sol” account I run `exit` in the console. This makes it easy to switch between users without having to log out and back in. Some of the instructions below require root privileges, but I have written where that applies.
+After creating the new user, I use that account as my “base”. By that I mean that I always log in as “sol” initially. If I need to run a command that require root privileges, I switch to an account with those privileges by running `su - username` from the console. Replace “username” with whatever username you assigned during the Ubuntu installation. To get back to the “sol” account I run `exit` in the console. This makes it easy to switch between users without having to log out and back in. Some of the instructions below require root privileges, but I have written where that applies.
 
 
-## Create RAM drive and swap spillover (optional)
+## Create RAM disk and swap spillover (optional)
 
-As I mentioned above, Solana require a high amount of IOPS. This is especially true for processing accounts data. To reduce wear on my SSD I prefer storing accounts in a [RAM drive](https://en.wikipedia.org/wiki/RAM_drive). Especially since I’m already using an old and worn SSD, which may fail at any time.
+As I mentioned above, Solana require a high amount of IOPS. This is especially true for processing accounts data. To reduce wear on my SSD I prefer storing accounts in a [RAM disk](https://en.wikipedia.org/wiki/RAM_drive). Especially since I’m already using an old and worn SSD, which may fail at any time.
 
 The steps in this section are optional, and only concern storage for the accounts data (contrary to the ledger data, also known as “rocksdb”). If you would rather store accounts on an SSD, skip to “Install Solana” further below.
 
-### Create RAM drive
+### Create RAM disk
 
 ```diff
 ! Perform as user with root privileges
 ```
 
-The RAM drive will act as the primary storage for accounts. To create it, I first have to create a [mount point](https://help.ubuntu.com/community/Mount):
+The RAM disk will act as the primary storage for accounts. To create it, I first have to create a [mount point](https://help.ubuntu.com/community/Mount):
 ```bash
-sudo mkdir /mnt/ramdrive
+sudo mkdir /mnt/ramdisk
 ```
 
-Second, I append the RAM drive configuration in [fstab](https://help.ubuntu.com/community/Fstab) to make it permanent (i.e. appear on system boot). Access is limited to the user “sol”, and size set to 16 GB, as this is currently more than enough for devnet accounts data:
+Second, I append the RAM disk configuration in [fstab](https://help.ubuntu.com/community/Fstab) to make it permanent (i.e. appear on system boot). Access is limited to the user “sol”, and size set to 16 GB, as this is currently more than enough for devnet accounts data:
 ```bash
-echo 'tmpfs /mnt/ramdrive tmpfs rw,noexec,nodev,nosuid,noatime,size=16G,user=sol 0 0' | \
+echo 'tmpfs /mnt/ramdisk tmpfs rw,noexec,nodev,nosuid,noatime,size=16G,user=sol 0 0' | \
   sudo tee --append /etc/fstab > /dev/null
 ```
 
@@ -84,7 +83,7 @@ sudo mount --all --verbose
 
 In some cases my system may need more RAM than I have available. For those cases I need a [swap](https://help.ubuntu.com/community/SwapFaq) file that can act as reserve. If RAM utilization expands beyond my physical RAM, the excess data will spill over into swap and ensure the validator can continue running.
 
-Any spillover into swap should be temporary, so I usually monitor if the RAM drive and swap space starts filling up. If that happens there is likely something wrong.
+Any spillover into swap should be temporary, so I usually monitor if the RAM disk and swap space starts filling up. If that happens there is likely something wrong.
 
 Ubuntu server creates a swap file by default, but I want a bigger one to ensure I have enough space. So I delete the existing one and create a new one. To do this, I first fetch a list of the current swap files in the system:
 ```bash
@@ -137,14 +136,14 @@ To ensure the system is using RAM as much as possible, and swap as little as pos
 echo 'vm.swappiness=1' | sudo tee --append /etc/sysctl.conf > /dev/null
 ```
 ```bash
-sudo sysctl -p
+sudo sysctl --load
 ```
 
 Finally I enable all swaps from fstab by running:
 ```bash
 sudo swapon --all --verbose
 ```
-I have now created the RAM drive and swap file, and can move to the installation phase.
+I have now created the RAM disk and swap file, and can move to the installation phase.
 
 ## Install Solana
 
@@ -156,9 +155,9 @@ As I mentioned above, you can either install the prebuilt binaries or build your
 ! Perform as user “sol”
 ```
 
-This is by far the easiest way to install Solana. Make sure you replace the version number with the most recent one from the Solana [github](https://github.com/solana-labs/solana/releases/) page. You can also copy the most recent script execution command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools).
+This is by far the easiest way to install Solana. You can also copy the most recent script execution command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools).
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.6.8/install)"
+sh -c "$(curl -sSfL https://release.solana.com/edge/install)"
 ```
 
 After the installation is complete I close and reopen the terminal, or log out and in again (as “sol”). I do this to enable the environment variables that were added to `~/.profile` during the installation. These tell the system to look for binaries in the Solana installation directory, so I can run the Solana commands from any directory in the system.
@@ -171,18 +170,14 @@ In this section I’ll connect the validator to the Solana network and set up th
 
 First I configure Solana to connect to devnet:
 ```bash
-solana config set --url https://api.devnet.solana.com
+solana config set --url devnet
 ```
 
-Then I verify that the cluster is reachable by checking the total transaction count:
+Then I verify that the cluster is reachable by running a random command. For example:
 ```bash
-solana transaction-count
+solana gossip
 ```
-
-We can also probe the cluster to see the current gossip network nodes (press **Ctrl+C** to stop):
-```bash
-solana-gossip spy --entrypoint entrypoint.devnet.solana.com:8001
-```
+It should reply with a list of validators.
 
 ### Setting up accounts
 
@@ -279,17 +274,24 @@ Nano will create and open an empty file. Inside it I paste the following:
 #!/bin/bash
 exec solana-validator \
  --entrypoint entrypoint.devnet.solana.com:8001 \
- --trusted-validator dv1LfzJvDF7S1fBKpFgKoKXK5yoSosmkAdfbxBo1GqJ \
+ --entrypoint entrypoint2.devnet.solana.com:8001 \
+ --entrypoint entrypoint3.devnet.solana.com:8001 \
+ --entrypoint entrypoint4.devnet.solana.com:8001 \
+ --entrypoint entrypoint5.devnet.solana.com:8001 \
+ --known-validator dv1ZAGvdsz5hHLwWXsVnM94hWf1pjbKVau1QVkaMJ92 \
+ --known-validator dv2eQHeP4RFrJZ6UeiZWoc3XTtmtZCUKxxCApCDcRNV \
+ --known-validator dv4ACNkpYPcE3aKmYDqZm9G5EB3J4MRoeE7WNDRBVJB \
+ --known-validator dv3qDFk1DTF36Z62bNvrCXe9sKATA6xvVy6A798xxAS \
  --expected-genesis-hash EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG \
- --rpc-port 8899 \
  --dynamic-port-range 8000-8010 \
- --no-untrusted-rpc \
+ --rpc-port 8899 \
+ --only-known-rpc \
  --wal-recovery-mode skip_any_corrupted_record \
  --identity ~/validator-keypair.json \
  --vote-account ~/vote-account-keypair.json \
- --log ~/log/solana-validator.log \
- --accounts /mnt/ramdrive/solana-accounts \
- --ledger ~/validator-ledger \
+ --log ~/log/validator.log \
+ --accounts /mnt/ramdisk/solana-accounts \
+ --ledger ~/ledger \
  --limit-ledger-size
 ```
 
@@ -315,9 +317,9 @@ I need to create two system services; the validator service (that runs the scrip
 ! Perform as user with root privileges
 ```
 
-I create the file `sol.service` inside systemd:
+I create the file `validator.service` inside systemd:
 ```bash
-sudo nano /etc/systemd/system/sol.service
+sudo nano /etc/systemd/system/validator.service
 ```
 
 Inside the file I paste the following:
@@ -332,12 +334,11 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=1
-LimitNOFILE=700000
+LimitNOFILE=1000000
 LogRateLimitIntervalSec=0
 User=sol
 Environment=PATH=/bin:/usr/bin:/home/sol/.local/share/solana/install/active_release/bin
 Environment=SOLANA_METRICS_CONFIG=host=https://metrics.solana.com:8086,db=devnet,u=scratch_writer,p=topsecret
-WorkingDirectory=/home/sol
 ExecStart=/home/sol/start-validator.sh
 
 [Install]
@@ -395,13 +396,13 @@ sudo nano /etc/logrotate.d/solana
 
 And paste the following inside it:
 ```
-/home/sol/log/solana-validator.log {
+/home/sol/log/validator.log {
   su sol sol
   daily
   rotate 7
   missingok
   postrotate
-    systemctl kill -s USR1 sol.service
+    systemctl kill -s USR1 validator.service
   endscript
 }
 ```
@@ -416,13 +417,13 @@ Log rotation is ready to roll.
 
 After completing all the steps above I usually reboot my server (`sudo reboot`), although I suppose it’s not really necessary. It's still nice to verify that I have set up `fstab` correctly. After rebooting I do some quick checks before I start the services.
 
-### Verify swap file and RAM drive presence
+### Verify swap file and RAM disk presence
 
 ```diff
 ! Perform as user “sol”
 ```
 
-I first check if the swap file and RAM drive is present. Mostly to confirm that they survived the reboot, which would mean I configured them correctly. I check the swap file by running:
+I first check if the swap file and RAM disk is present. Mostly to confirm that they survived the reboot, which would mean I configured them correctly. I check the swap file by running:
 ```bash
 swapon --show
 ```
@@ -433,14 +434,14 @@ NAME      TYPE SIZE USED PRIO
 /swapfile file  16G   0B   -2
 ```
 
-I look for the “name” and “size” to correspond to what I set previously. Then I use `mount` to check the RAM drive. I utilize `grep` to only print lines with “ramdrive” in their name:
+I look for the “name” and “size” to correspond to what I set previously. Then I use `mount` to check the RAM disk. I utilize `grep` to only print lines with “ramdisk” in their name:
 ```bash
-mount | grep ramdrive
+mount | grep ramdisk
 ```
 
 My system replies:
 ```
-tmpfs on /mnt/ramdrive type tmpfs (rw,nosuid,nodev,noexec,noatime,size=16777216k,user=sol)
+tmpfs on /mnt/ramdisk type tmpfs (rw,nosuid,nodev,noexec,noatime,size=16777216k,user=sol)
 ```
 
 I typically look at the size and the user association.
@@ -463,15 +464,15 @@ sudo systemctl status systuner.service
 
 It should say “active (running)”. I repeat the same steps with the validator service:
 ```bash
-sudo systemctl enable --now sol.service
+sudo systemctl enable --now validator.service
 ```
 ```bash
-sudo systemctl status sol.service
+sudo systemctl status validator.service
 ```
 
 After a few minutes I check if the validator has caught up with the rest of the network:
 ```bash
-solana catchup ~/validator-keypair.json
+solana catchup ~/validator-keypair.json --our-localhost
 ```
 If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
 
@@ -479,17 +480,12 @@ If it replies with an error, I give it ten minutes and try again. If it still gi
 
 Here are some commands I use to monitor my validator. To display log entries which contain “error” or “warn” I can run:
 ```bash
-grep --ignore-case --extended-regexp 'error|warn' ~/log/solana-validator.log
-```
-
-Verify my nodes' presence in the cluster (press **Ctrl+C** to stop):
-```bash
-solana-gossip spy --entrypoint entrypoint.devnet.solana.com:8001
+grep --ignore-case --extended-regexp 'error|warn' ~/log/validator.log
 ```
 
 Monitor my node (press **Ctrl+C** to stop):
 ```bash
-solana-validator --ledger ~/validator-ledger monitor
+solana-validator --ledger ~/ledger monitor
 ```
 
 Show block production and skipped slots for my node:
