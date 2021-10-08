@@ -155,9 +155,9 @@ As I mentioned above, you can either install the prebuilt binaries or build your
 ! Perform as user “sol”
 ```
 
-This is by far the easiest way to install Solana. You can also copy the most recent script execution command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools).
+This is by far the easiest way to install Solana. Check for the most recent version on [GitHub](https://github.com/solana-labs/solana/releases/latest), and replace the version number in the command below. You can also copy the most recent installation command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools#use-solanas-install-tool).
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/edge/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.8.0/install)"
 ```
 
 After the installation is complete I close and reopen the terminal, or log out and in again (as “sol”). I do this to enable the environment variables that were added to `~/.profile` during the installation. These tell the system to look for binaries in the Solana installation directory, so I can run the Solana commands from any directory in the system.
@@ -470,22 +470,39 @@ sudo systemctl enable --now validator.service
 sudo systemctl status validator.service
 ```
 
-After a few minutes I check if the validator has caught up with the rest of the network:
+### Check if the validator is running
+
+```diff
+! Perform as user “sol”
+```
+
+After starting the services I switch to "sol" again and start monitoring the start-up:
+```bash
+solana-validator --ledger ~/ledger monitor
+```
+The monitoring tool tells us what the validator is doing. It can take several minutes to start up the validator for the first time. When everything is up and running the reply from the monitor command should look similar to this:
+```
+Ledger location: /home/sol/ledger
+Identity: vJPHDtC1UrdRy2NpNTtHQp14m6ZDUJA7CEDNsiYRA7k
+Genesis Hash: EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG
+Version: 1.8.0
+Shred Version: 23305
+Gossip Address: IP_ADDRESS:8000
+TPU Address: IP_ADDRESS:8003
+⠋ 00:07:59 | Max Slot: 86087616 | Processed Slot: 86087615 | Confirmed Slot: 86087613 | Finalized Slot: 86087571 | Snapshot Slot: 86087510 | Transactions: 2211802703 | ◎0.498529086
+```
+If something different is showing, or if there is any red text, I usually give it a few minutes and check again (press **Ctrl+C** to exit). We can also run a simple command to see if the validator is caught up with the cluster. If the validator is not caught up, it will display the progress:
 ```bash
 solana catchup ~/validator-keypair.json --our-localhost
 ```
-If it replies with an error, I give it ten minutes and try again. If it still gives an error, the trouble shooting begins.
+If I get errors running these commands after a good wait (~10 minutes), the trouble shooting begins.
 
 ## Useful commands
 
-Here are some commands I use to monitor my validator. To display log entries which contain “error” or “warn” I can run:
+Here are some commands I use to monitor my validator. You should run `solana --help` and explore!
+To display log entries which contain “error” or “warn” I can run:
 ```bash
 grep --ignore-case --extended-regexp 'error|warn' ~/log/validator.log
-```
-
-Monitor my node (press **Ctrl+C** to stop):
-```bash
-solana-validator --ledger ~/ledger monitor
 ```
 
 Show block production and skipped slots for my node:
