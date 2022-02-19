@@ -283,7 +283,7 @@ exec solana-validator \
  --known-validator dv4ACNkpYPcE3aKmYDqZm9G5EB3J4MRoeE7WNDRBVJB \
  --known-validator dv3qDFk1DTF36Z62bNvrCXe9sKATA6xvVy6A798xxAS \
  --expected-genesis-hash EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG \
- --dynamic-port-range 8000-8010 \
+ --dynamic-port-range 8000-8020 \
  --rpc-port 8899 \
  --only-known-rpc \
  --wal-recovery-mode skip_any_corrupted_record \
