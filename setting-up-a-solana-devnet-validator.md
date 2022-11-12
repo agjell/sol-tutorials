@@ -145,6 +145,16 @@ sudo swapon --all --verbose
 ```
 I have now created the RAM disk and swap file, and can move to the installation phase.
 
+### Configure Firewall
+
+You'll need to open the ports on your firewall that you'll later specify in the startup script via ` --dynamic-port-range 8000-8020`
+
+Run these commands to open these ports:
+```
+sudo ufw allow 8000:8020/tcp
+sudo ufw allow 8000:8020/udp
+```
+
 ## Install Solana
 
 As I mentioned above, you can either install the prebuilt binaries or build your own binaries. I have only included instructions to install the prebuilt binaries in this tutorial, as this will work for most people. However, I have also made a tutorial on building binaries from source, which you can find [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
