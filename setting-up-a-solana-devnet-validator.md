@@ -6,7 +6,7 @@
  4. [Create RAM disk and swap spillover (optional)](#create-ram-disk-and-swap-spillover-optional)
  5. [Install Solana](#install-solana)
  6. [Configure Solana](#configure-solana)
- 7. [Create startup script and system services](#create-startup-script-and-system-services)
+ 7. [Create startup script and system service](#create-startup-script-and-system-service)
  8. [Set up log rotation (optional)](#set-up-log-rotation-optional)
  9. [Starting the validator](#starting-the-validator)
  10. [Useful commands](#useful-commands)
@@ -14,18 +14,18 @@
 
 ## Introduction
 
-Setting up a devnet validator was the first thing I did to become familiar with Solana. I started by following the [official documentation](https://docs.solana.com/running-validator), and asked people in the [Solana Discord](https://discordapp.com/invite/pquxPsq) when I stubled into issues. The official docs were a bit outdated when I set up for the first time. This is to be expected in a rapidly developing project, as code maintenance is usually prioritized higher than documentation. To simplify the setup process for myself later, I decided to make this detailed step-by-step tutorial. Hopefully it can be useful to others as well.
+Setting up a devnet validator was the first thing I did to become familiar with Solana. I started by following the [official documentation](https://docs.solana.com/running-validator), and asked people in the [Solana Discord](https://solana.com/discord) when I stubled into issues. The official docs were a bit outdated when I set up for the first time. This is to be expected in a rapidly developing project, as code development is usually prioritized higher than documentation. To simplify the setup process for myself later, I decided to make this detailed step-by-step tutorial. Hopefully it can be useful to others as well.
 
-If you have general questions about running a validator, you may find answers to them in [this FAQ](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md).
+If you have general questions about running a validator, you may find answers to them in my unofficial [FAQ](https://github.com/agjell/sol-tutorials/blob/master/solana-validator-faq.md).
 
 
 ## Hardware requirements
 
-Running a devnet validator does not require a high end system. This makes devnet an ideal playground to experiment and get to know Solana, before considering a mainnet setup. Hardware requirements for mainnet are _a lot_ higher, and can be found [here](https://docs.solana.com/running-validator/validator-reqs). My devnet validator is running on an old computer with a quad core CPU, 16 GB RAM and a 256 GB SATA SSD.
+Running a devnet validator does not require a high end system. This makes devnet an ideal playground to experiment and get to know Solana, before considering a mainnet setup. Hardware requirements for mainnet are _a lot_ higher, and can be found [here](https://docs.solana.com/running-validator/validator-reqs). My devnet validator was running on an old computer with a quad core CPU, 16 GB RAM and a 256 GB SATA SSD.
 
-You _will_ need an SSD, as a mechanical drive will not be able to handle the amount of IOPS (input/output operations per second) that Solana demands. SATA SSDs are only usable in devnet. Running testnet and mainnet validators requires NVMe SSDs with high speed, high IOPS and high endurance ratings.
+You _will_ need an SSD, as a mechanical drive will not be able to handle the amount of IOPS (input/output operations per second) that Solana demands. SATA SSDs may be usable in devnet. Running testnet and mainnet validators requires NVMe SSDs with high speed, high IOPS and high endurance ratings.
 
-If you have a very old CPU you may need to build Solana from source. Be aware of this if the prebuilt binaries crash at launch. The prebuilt binaries should run in most modern systems without problems, though.
+If you have a very old CPU you may need to [build Solana from source](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md). Be aware of this if the prebuilt binaries crash at launch. The prebuilt binaries should run in most modern systems without problems, though.
 
 
 ## Install Ubuntu server
@@ -39,7 +39,7 @@ The first thing I do after logging into a fresh installation is to install updat
 sudo apt update && sudo apt upgrade --assume-yes
 ```
 
-Solana does not require root privileges, and It’s considered poor practice to run Solana as “root". It’s also considered good to practice the principle of least privilege. This basically means that no user, process or application should ever have higher privileges than they need to fulfill their intended purpose. I therefore create a new user, “sol", which will be running the validator service as a regular user:
+Solana does not require root privileges, and It is considered poor practice to run Solana as “root". It’s also considered good to practice the principle of least privilege. This basically means that no user, process or application should ever have higher privileges than they need to fulfill their intended purpose. I therefore create a new user, “sol", which will be running the validator service as a regular user:
 ```bash
 sudo adduser sol
 ```
@@ -157,7 +157,7 @@ As I mentioned above, you can either install the prebuilt binaries or build your
 
 This is by far the easiest way to install Solana. Check for the most recent version on [GitHub](https://github.com/solana-labs/solana/releases/latest), and replace the version number in the command below. You can also copy the most recent installation command from the [Solana docs](https://docs.solana.com/cli/install-solana-cli-tools#use-solanas-install-tool).
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.8.0/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.16.20/install)"
 ```
 
 After the installation is complete I close and reopen the terminal, or log out and in again (as “sol”). I do this to enable the environment variables that were added to `~/.profile` during the installation. These tell the system to look for binaries in the Solana installation directory, so I can run the Solana commands from any directory in the system.
@@ -195,7 +195,7 @@ The account structure can be a bit confusing, but this is how I understand it (I
 	- is used for voting by the validator
 	- receives validator rewards
 
-When creating system accounts and voting accounts we need to provide a password. Each account creation produce a keypair file, and Solana provides us with the accounts' public key and seed phrase. The seed phrase is needed to recover a lost account (e.g. if you delete the keypair or lose the password). I usually store everything securely in a [KeePass](https://keepass.info/ "https://keepass.info/") database.
+When creating system accounts and voting accounts we need to provide a password. Each account creation produce a keypair file, and Solana provides us with the accounts' public key and seed phrase. The seed phrase is needed to recover a lost account (e.g. if you delete the keypair or lose the password). I usually store everything securely in a password manager, like [Bitwarden](https://bitwarden.com/) or [KeePass](https://keepass.info/ "https://keepass.info/").
 
 #### Wallet
 
@@ -252,9 +252,9 @@ solana create-vote-account \
 ```
 That's it for accounts!
 
-## Create startup script and system services
+## Create startup script and system service
 
-To launch Solana I’m using a shell script that contains all the flags and options needed for my configuration (a “wrapper” script). The script is executed by the Solana service, which make sure Solana starts automatically on every system boot. Solana also calls upon a system tuner daemon, to make recommended adjustments to some system settings. Below I will take you through how I set all that up.
+To launch the Solana validator I’m using a shell script that contains all the flags and options needed for my configuration (a “wrapper” script). The script is executed by a system service, which ensures that Solana starts automatically on every boot and reboot. To ensure smooth validator operation I also have to do some necessary system tuning. Below I will take you through how I set all that up.
 
 ### Create wrapper script
 
@@ -307,17 +307,15 @@ Note that my script points to a “log” directory inside the home folder. Let�
 mkdir ~/log
 ```
 
-### Create system services
-
-I need to create two system services; the validator service (that runs the script) and the tuner service. By running them as services they can be configured to start at boot. The system can also restart services automatically if they crash.
-
-#### Validator service
+### Create validator service
 
 ```diff
 ! Perform as user with root privileges
 ```
 
-I create the file `validator.service` inside systemd:
+Running the validator as a system service makes it easy to start it automatically at boot. The system can also restart services automatically if they crash, as the service manager monitors all services continously.
+
+I start by creating the `validator.service` file:
 ```bash
 sudo nano /etc/systemd/system/validator.service
 ```
@@ -327,14 +325,13 @@ Inside the file I paste the following:
 [Unit]
 Description=Solana Validator
 After=network.target
-Wants=systuner.service
 StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 Restart=on-failure
 RestartSec=1
-LimitNOFILE=1000000
+LimitNOFILE=2000000
 LogRateLimitIntervalSec=0
 User=sol
 Environment=PATH=/bin:/usr/bin:/home/sol/.local/share/solana/install/active_release/bin
@@ -345,41 +342,48 @@ ExecStart=/home/sol/start-validator.sh
 WantedBy=multi-user.target
 ```
 
-Save and exit.
+Save and exit (**Ctrl+S** and **Ctrl+X**).
 
-#### System tuner service
-
-```diff
-! Perform as user with root privileges
-```
-
-Next I create the file `systuner.service` inside systemd:
-```bash
-sudo nano /etc/systemd/system/systuner.service
-```
-
-Inside the file I paste the following:
-```
-[Unit]
-Description=Solana System Tuner
-After=network.target
-
-[Service]
-Type=simple
-Restart=on-failure
-RestartSec=1
-LogRateLimitIntervalSec=0
-ExecStart=/home/sol/.local/share/solana/install/active_release/bin/solana-sys-tuner --user sol
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Save and exit. To let the system know about the new services I reload the service manager:
+To let the system know about the new service I reload the service manager:
 ```bash
 sudo systemctl daemon-reload
 ```
-The services are now ready to run. Just one more (optional) step before take-off.
+The valdator service is now almost ready to run.
+
+### Tune system settings
+
+To ensure that the validator service is able to operate smoothly, I must tune some system settings before I can start it. First I have to increase the "nofile" limit. Copy and paste all lines into the terminal, and press **Enter**:
+```bash
+sudo tee /etc/security/limits.d/90-solana-nofiles.conf > /dev/null <<EOT
+# Increase process file descriptor count limit
+#<domain> <type> <item> <value>
+* - nofile 2000000
+EOT
+```
+
+Then I adjust some other settings:
+```bash
+sudo tee /etc/sysctl.d/20-solana.conf > /dev/null <<EOT
+# Increase UDP buffer size
+net.core.rmem_max=134217728
+net.core.rmem_default=134217728
+net.core.wmem_max=134217728
+net.core.wmem_default=134217728
+
+# Increase memory mapped files limit
+vm.max_map_count=2000000
+
+# Maximize number of file-handles a process can allocate
+fs.nr_open=2147483584
+EOT
+```
+
+Last, I have to load the adjusted settings
+```bash
+sudo sysctl --system
+```
+
+Just one more (optional) step before take-off.
 
 ## Set up log rotation (optional)
 
@@ -415,7 +419,7 @@ Log rotation is ready to roll.
 
 ## Starting the validator
 
-After completing all the steps above I usually reboot my server (`sudo reboot`), although I suppose it’s not really necessary. It's still nice to verify that I have set up `fstab` correctly. After rebooting I do some quick checks before I start the services.
+After completing all the steps above I usually reboot my server (`sudo reboot`), although I suppose it’s not really necessary. It's still nice to verify that I have set up `fstab` correctly. After rebooting I do some quick checks before I start the service.
 
 ### Verify swap file and RAM disk presence
 
@@ -446,37 +450,29 @@ tmpfs on /mnt/ramdisk type tmpfs (rw,nosuid,nodev,noexec,noatime,size=16777216k,
 
 I typically look at the size and the user association.
 
-### Start the services
+### Start the validator service
 
 ```diff
 ! Perform as user with root privileges
 ```
 
-Finally, it's time to start the services! The systuner service is first, since the validator application calls upon it:
-```bash
-sudo systemctl enable --now systuner.service
-```
-
-Then I check if it started successfully and is running:
-```bash
-sudo systemctl status systuner.service
-```
-
-It should say “active (running)”. I repeat the same steps with the validator service:
+Finally, it's time to start the validator service:
 ```bash
 sudo systemctl enable --now validator.service
 ```
+Then I check if it started successfully and is running:
 ```bash
 sudo systemctl status validator.service
 ```
+It should say “active (running)”.
 
-### Check if the validator is running
+### Monitor the validator
 
 ```diff
 ! Perform as user “sol”
 ```
 
-After starting the services I switch to "sol" again and start monitoring the start-up:
+After starting the validator service I switch to "sol" again and start monitoring the start-up:
 ```bash
 solana-validator --ledger ~/ledger monitor
 ```
