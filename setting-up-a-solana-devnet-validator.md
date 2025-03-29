@@ -1,3 +1,5 @@
+# This tutorial is outdated and replaced with a new beginners guide [here](https://github.com/agjell/sol-tutorials/blob/master/agave-beginners-guide.md). The information below will not be updated.
+
 # Setting up a Solana devnet validator
 
  1. [Introduction](#introduction)
