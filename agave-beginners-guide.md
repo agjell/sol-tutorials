@@ -410,7 +410,7 @@ TPU Address: 64.130.53.58:8006
 
 You can then run the command below to see if the validator has caught up to the cluster. If the validator is not caught up, it will display the progress. The command will fail if the validator is still loading the ledger from snapshot.
 ```bash
-solana catchup ~/validator-keypair.json --our-localhost
+solana catchup --keypair ~/validator-keypair.json --our-localhost
 ```
 
 If you need to troubleshoot you can look for warnings and errors in the log:
