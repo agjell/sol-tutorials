@@ -2,7 +2,7 @@
 
 1. [Introduction](#1-introduction)
 2. [Hardware requirements](#2-hardware-requirements)
-3. [Install Ubuntu server](#3-install-ubuntu-server)
+3. [Install and configure Ubuntu server](#3-install-and-configure-ubuntu-server)
 4. [Create an unprivileged user](#4-create-an-unprivileged-user)
 5. [Install and configure Agave](#5-install-and-configure-agave)
 6. [Create keypairs](#6-create-keypairs)
@@ -21,19 +21,56 @@ This tutorial is for Solana beginners. It is a rewritten and updated version of 
 
 ## 2. Hardware requirements
 
-Abide by the hardware requirements in the [official docs](https://docs.anza.xyz/operations/requirements) for mainnet, testnet and devnet, respectively. You may also have a look at the community maintained [Solana Hardware Compatibility List](https://solanahcl.org/).
+Follow by the hardware requirements in the [official docs](https://docs.anza.xyz/operations/requirements) for mainnet, testnet and devnet, respectively. You may also have a look at the community maintained [Solana Hardware Compatibility List](https://solanahcl.org/). This tutorial assumes a setup with three SSDs, which is the minimum recommendation for a mainnet validator.
 
 
-## 3. Install Ubuntu server
+## 3. Install and configure Ubuntu server
 
-First you need to [install Ubuntu server](https://documentation.ubuntu.com/server/tutorial/basic-installation/). Remember to check “Install OpenSSH server” during the Ubuntu installation if you want to access your validator remotely. If you forget it during the main installation you can follow [this](https://documentation.ubuntu.com/server/how-to/security/openssh-server/index.html) guide afterwards. You can read about how to connect to the server remotely over SSH [here](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/).
+First you need to [install Ubuntu server](https://documentation.ubuntu.com/server/tutorial/basic-installation/). Remember to check `[X] Install OpenSSH server` during the Ubuntu installation if you want to access your validator remotely. If you forget it during the main installation you can follow [this](https://documentation.ubuntu.com/server/how-to/security/openssh-server/index.html) guide afterwards. You can read about how to connect to the server remotely over SSH [here](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/).
 
 The first thing I do after logging in to a fresh install is to update it:
 ```bash
 sudo apt update && sudo apt upgrade --assume-yes
 ```
 
-Then you'll need to partition, format and mount any extra SSDs. If you don't know how, the internet is your friend. There are tons of guides out there. The process usually involve the following tools: [`lsblk`](https://manpages.ubuntu.com/manpages/noble/en/man8/lsblk.8.html),  [`fdisk`](https://manpages.ubuntu.com/manpages/noble/en/man8/fdisk.8.html), [`mkfs`](https://manpages.ubuntu.com/manpages/noble/en/man8/mkfs.8.html), [`blkid`](https://manpages.ubuntu.com/manpages/noble/en/man8/blkid.8.html), [`fstab`](https://manpages.ubuntu.com/manpages/noble/en/man5/fstab.5.html) and [`mount`](https://manpages.ubuntu.com/manpages/noble/en/man8/mount.8.html).
+### A note about partitioning
+
+You will need to partition, format and mount any extra SSDs. If you don't know how, the internet is your friend. I will give you a few pointers, though. In my opinion, the easiest way to partition is by choosing `(X) Custom storage layout` during the Ubuntu installation. If you end up doing it after the installation, the process usually involves the following tools: [`lsblk`](https://manpages.ubuntu.com/manpages/noble/en/man8/lsblk.8.html), [`fdisk`](https://manpages.ubuntu.com/manpages/noble/en/man8/fdisk.8.html), [`mkfs`](https://manpages.ubuntu.com/manpages/noble/en/man8/mkfs.8.html), [`blkid`](https://manpages.ubuntu.com/manpages/noble/en/man8/blkid.8.html), [`fstab`](https://manpages.ubuntu.com/manpages/noble/en/man5/fstab.5.html), and [`mount`](https://manpages.ubuntu.com/manpages/noble/en/man8/mount.8.html).
+
+I have added an example of a functional partition layout with a corresponding `/etc/fstab` configuration below, based on three NVMe SSDs:
+- One for system, home, snapshots and swap
+- One for accounts data
+- One for ledger data
+
+#### Functional partition layout:
+```
+$ lsblk
+NAME        MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+nvme1n1     259:4    0 3.5T  0 disk
+└─nvme1n1p1 259:0    0 3.5T  0 part /mnt/accounts
+nvme2n1     259:7    0 3.5T  0 disk
+└─nvme2n1p1 259:8    0 3.5T  0 part /mnt/ledger
+nvme3n1     259:6    0 3.5T  0 disk
+├─nvme3n1p1 259:9    0   1G  0 part /boot/efi
+├─nvme3n1p2 259:10   0 200G  0 part /
+├─nvme3n1p3 259:11   0   1T  0 part /home
+├─nvme3n1p4 259:12   0 1.8T  0 part /mnt/snapshots
+└─nvme3n1p5 259:13   0 500G  0 part [SWAP]
+```
+The large swap partition is not required, but acts a safety valve. It will give you more time to act if the validator is about to run out of memory (OOM).
+
+#### Functional fstab configuration:
+```
+$ cat /etc/fstab
+# <file system>                          <mount point> <type> <options> <dump> <pass>
+UUID=0F93-AAF9                            /boot/efi      vfat defaults       0 1
+UUID=011e5bee-d1f8-43fc-aeb4-2af3a65df7ac /              ext4 defaults       0 1
+UUID=abe402c4-ad18-4cce-9a53-e0a84189fc21 /home          ext4 noatime        0 2
+UUID=67506fe9-4226-4c06-a5e1-4c16479735ac /mnt/accounts  ext4 noatime        0 0
+UUID=79332ac3-56b2-406c-9e64-3fbf0860f906 /mnt/snapshots ext4 noatime        0 0
+UUID=38bb59b1-c07c-4e02-9c1f-f512d2d92d07 /mnt/ledger    ext4 noatime        0 0
+UUID=48f7f4ef-a475-4964-b2c2-277e1601ba98 none           swap sw             0 0
+```
 
 
 ## 4. Create an unprivileged user
