@@ -57,7 +57,7 @@ nvme3n1     259:6    0 3.5T  0 disk
 ├─nvme3n1p4 259:12   0 1.8T  0 part /mnt/snapshots
 └─nvme3n1p5 259:13   0 500G  0 part [SWAP]
 ```
-The large swap partition is not required, but acts a safety valve. It will give you more time to act if the validator is about to run out of memory (OOM).
+The large swap partition is not required. It is a safety valve, however, and will give you more time to act if the validator is about to run out of memory (OOM).
 
 #### Functional fstab configuration:
 ```
@@ -103,7 +103,7 @@ You can either install the prebuilt binaries or build your own binaries. In this
 
 You should first check the officially recommended version in Discord for either [mainnet](https://discord.com/channels/428295358100013066/669406841830244375), [testnet](https://discord.com/channels/428295358100013066/594138785558691840) or [devnet](https://discord.com/channels/428295358100013066/749059399875690557). Replace the version number in the command below with the recommendation from Discord. You can also find the most recent installation command in the [Agave docs](https://docs.anza.xyz/cli/install), but the version provided there is usually **not recommended** for mainnet.
 ```bash
-sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.16/install)"
+sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.17/install)"
 ```
 
 After the installation is complete, close and reopen the terminal or log out and in again (as “sol”). This is done to load the environment variable that was added to `~/.profile` during the installation, which enables "sol" to run the `solana` and `agave` commands from any directory.
@@ -267,7 +267,7 @@ ln --symbolic /mnt/accounts ~/accounts
 ln --symbolic /mnt/snapshots ~/snapshots
 ```
 
-### Testnet values ([official docs](https://docs.anza.xyz/clusters/available#testnet))
+### Testnet values (from [official docs](https://docs.anza.xyz/clusters/available#testnet))
 ```
   --entrypoint entrypoint.testnet.solana.com:8001 \
   --entrypoint entrypoint2.testnet.solana.com:8001 \
@@ -280,7 +280,7 @@ ln --symbolic /mnt/snapshots ~/snapshots
   --expected-genesis-hash 4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY \
 ```
 
-### Devnet values ([official docs](https://docs.anza.xyz/clusters/available#devnet))
+### Devnet values (from [official docs](https://docs.anza.xyz/clusters/available#devnet))
 ```
   --entrypoint entrypoint.devnet.solana.com:8001 \
   --entrypoint entrypoint2.devnet.solana.com:8001 \
