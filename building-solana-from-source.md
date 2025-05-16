@@ -52,18 +52,18 @@ Rust is now ready to run.
 
 Now for the build. I clone the source code from GitHub into `~/agave-src-<version>`. I replace "version" with the latest **mainnet** version number from the Agave [GitHub](https://github.com/anza-xyz/agave/releases) page:
 ```bash
-git clone https://github.com/anza-xyz/agave.git --depth 1 --branch v2.1.21 ~/agave-src-v2.1.21
+git clone https://github.com/anza-xyz/agave.git --depth 1 --branch v2.2.14 ~/agave-src-v2.2.14
 ```
 
-Then I run the `cargo-install-all.sh` script to build and install Agave. I assign `~/.local/share/solana/install/releases/2.1.21` as my installation directory, to mimic the directory structure of the pre-built binaries.
+Then I run the `cargo-install-all.sh` script to build and install Agave. I assign `~/.local/share/solana/install/releases/2.2.14` as my installation directory, to mimic the directory structure of the pre-built binaries.
 ```bash
-bash ~/agave-src-v2.1.21/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/2.1.21
+bash ~/agave-src-v2.2.14/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/2.2.14
 ```
 The script will automatically check for dependencies and download any that are missing. The build process will take some time. When it's done it provides a PATH variable for the binaries. I ignore this, as I make a more useful one in the following step.
 
-When installing the *pre-built* binaries, the installer automatically creates a symbolic link from the installation directory (`*/2.1.21`) to another directory (`*/active_release`). This link can be used in service files and environment variables, so these won't have to be amended on every Agave update. When building from source I have to create that link manually:
+When installing the *pre-built* binaries, the installer automatically creates a symbolic link from the installation directory (`*/2.2.14`) to another directory (`*/active_release`). This link can be used in service files and environment variables, so these won't have to be amended on every Agave update. When building from source I have to create that link manually:
 ```bash
-ln --symbolic ~/.local/share/solana/install/releases/2.1.21 ~/.local/share/solana/install/active_release
+ln --symbolic ~/.local/share/solana/install/releases/2.2.14 ~/.local/share/solana/install/active_release
 ```
 
 To make sure I can run the binaries from any directory I need to add a PATH variable to `~/.profile`. Note that I use the symbolic link from above here:
@@ -80,7 +80,7 @@ solana --version
 
 The system should respond with the version I just installed. If it doesn't, I retrace my steps and trouble-shoot. If everything is working as expected I delete the source directory:
 ```bash
-rm -rf ~/agave-src-v2.1.21
+rm -rf ~/agave-src-v2.2.14
 ```
 Installation complete! The remaining configuration may be done with the help of my [setup tutorial](https://github.com/agjell/sol-tutorials/blob/master/setting-up-a-solana-devnet-validator.md#configure-solana).
 
@@ -94,18 +94,18 @@ Updating an existing (self built) Agave installation largely follows the same pr
 
 First I clone the new release (find the most recent one on [GitHub](https://github.com/anza-xyz/agave/releases)):
 ```bash
-git clone https://github.com/anza-xyz/agave.git --depth 1 --branch v2.1.21 ~/agave-src-v2.1.21
+git clone https://github.com/anza-xyz/agave.git --depth 1 --branch v2.2.14 ~/agave-src-v2.2.14
 ```
 
 Followed by the build and installation process:
 ```bash
-bash ~/agave-src-v2.1.21/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/2.1.21
+bash ~/agave-src-v2.2.14/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/2.2.14
 ```
 
 Next I replace the symbolic link, pointing it to the new installation. I need to use `--force` and `--no-dereference` to overwrite the old link:
 ```bash
 ln --force --no-dereference --symbolic \
-  ~/.local/share/solana/install/releases/2.1.21 ~/.local/share/solana/install/active_release
+  ~/.local/share/solana/install/releases/2.2.14 ~/.local/share/solana/install/active_release
 ```
 
 Then I run a command to verify that the client is working:
@@ -115,7 +115,7 @@ solana --version
 
 If it replies with the updated version tag I delete the source files:
 ```bash
-rm -rf ~/agave-src-v2.1.21
+rm -rf ~/agave-src-v2.2.14
 ```
 
 Update complete! After a few days of stable operation I delete the binaries from the previous build.
@@ -126,7 +126,7 @@ Update complete! After a few days of stable operation I delete the binaries from
 Lastly, I have combined all the necessary commands to build/update Agave into one. This command presumes I have already installed Rust and the required dependencies. Here I first define an environment variable "TAG" with the version I want to build. This version is then called by all the consecutive commands.
 
 ```bash
-export TAG=v2.1.21 && \
+export TAG=v2.2.14 && \
 git clone https://github.com/anza-xyz/agave.git --depth 1 --branch $TAG ~/agave-src-$TAG && \
   bash ~/agave-src-$TAG/scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/$TAG && \
   ln --force --no-dereference --symbolic ~/.local/share/solana/install/releases/$TAG ~/.local/share/solana/install/active_release && \
@@ -135,7 +135,7 @@ git clone https://github.com/anza-xyz/agave.git --depth 1 --branch $TAG ~/agave-
 
 If you are only building binaries for a validator you can append the `--validator-only` flag to `cargo-install-all.sh`. By doing this the build process completes faster, because less binaries are built. Like this:
 ```bash
-export TAG=v2.1.21 && \
+export TAG=v2.2.14 && \
 git clone https://github.com/anza-xyz/agave.git --depth 1 --branch $TAG ~/agave-src-$TAG && \
   bash ~/agave-src-$TAG/scripts/cargo-install-all.sh --validator-only ~/.local/share/solana/install/releases/$TAG && \
   ln --force --no-dereference --symbolic ~/.local/share/solana/install/releases/$TAG ~/.local/share/solana/install/active_release && \
