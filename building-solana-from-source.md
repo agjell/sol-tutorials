@@ -27,7 +27,7 @@ The tutorial has been tested on a fresh install of Ubuntu 24.04.2 LTS. Post an i
 Before I can build from source I have to install some dependencies. Installing them requires root privileges.
 ```bash
 sudo apt update && sudo apt install -y \
-  git libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make libprotobuf-dev protobuf-compiler
+  git libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make libprotobuf-dev protobuf-compiler libclang-dev
 ```
 
 ### Install build tools
