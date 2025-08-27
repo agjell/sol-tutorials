@@ -343,8 +343,9 @@ To ensure that the validator service is able to operate smoothly, you should app
 ```bash
 sudo tee /etc/security/limits.d/90-solana-nofiles.conf > /dev/null <<EOT
 # Increase process file descriptor count limit
-#<domain> <type> <item> <value>
 * - nofile 2000000
+# Increase memory locked limit (kB)
+* - memlock 2000000
 EOT
 ```
 
