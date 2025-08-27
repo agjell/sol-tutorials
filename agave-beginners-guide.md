@@ -222,7 +222,7 @@ exec agave-validator \\
   --only-known-rpc \\
   --rpc-port 8899 \\
   --private-rpc \\
-  --dynamic-port-range 8000-8020 \\
+  --dynamic-port-range 8000-8025 \\
   --wal-recovery-mode skip_any_corrupted_record \\
   --ledger /mnt/ledger \\
   --accounts /mnt/accounts \\
