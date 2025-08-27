@@ -314,6 +314,7 @@ Type=simple
 Restart=always
 RestartSec=1
 LimitNOFILE=2000000
+LimitMEMLOCK=2000000000
 LogRateLimitIntervalSec=0
 User=sol
 Environment=SOLANA_METRICS_CONFIG=host=https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password
