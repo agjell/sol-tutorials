@@ -99,14 +99,9 @@ Using the `su` command makes it easy to switch between users without having to l
 ! Perform as user “sol”
 ```
 
-You can either install the prebuilt binaries or build your own binaries. In this tutorial we're installing the prebuilt binaries, as this is the easiest way to get going. If you prefer building your own binaries from source you can check out my tutorial [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
+Anza stopped providing validator binaries from Agave v3, so you have to build them yourself. Check out my short tutorial [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md) for that.
 
-You should first check the officially recommended version in Discord for either [mainnet](https://discord.com/channels/428295358100013066/669406841830244375), [testnet](https://discord.com/channels/428295358100013066/594138785558691840) or [devnet](https://discord.com/channels/428295358100013066/749059399875690557). Replace the version number in the command below with the recommendation from Discord. You can also find the most recent installation command in the [Agave docs](https://docs.anza.xyz/cli/install), but the version provided there is usually **not recommended** for mainnet.
-```bash
-sh -c "$(curl -sSfL https://release.anza.xyz/v2.3.13/install)"
-```
-
-After the installation is complete, close and reopen the terminal or log out and in again (as “sol”). This is done to load the environment variable that was added to `~/.profile` during the installation, which enables "sol" to run the `solana` and `agave` commands from any directory.
+After you have built and installed Agave, close and reopen the terminal or log out and in again (as “sol”). This is done to load the environment variable that was added to `~/.profile` during the installation, which enables "sol" to run the `solana` and `agave` commands from any directory.
 
 Then configure the Agave client to target a cluster. You can specify "testnet" or "devnet" as well.
 ```bash
