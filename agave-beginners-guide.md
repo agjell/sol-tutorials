@@ -13,22 +13,20 @@
 11. [Start the validator](#11-start-the-validator)
 12. [Monitor the validator](#12-monitor-the-validator)
 
-
 ## 1. Introduction
 
 This tutorial is for Solana beginners. It is a rewritten and updated version of my original [devnet validator tutorial](https://github.com/agjell/sol-tutorials/blob/master/setting-up-a-solana-devnet-validator.md). I've adapted this one for the Agave validator client, and have tested it on a fresh install of Ubuntu 24.04.2 LTS. The process is applicable for mainnet, testnet and devnet, but must be adapted by the user accordingly. I have used **mainnet** as an example throughout. Please post an issue if something is not working as expected!
-
 
 ## 2. Hardware requirements
 
 Follow by the hardware requirements in the [official docs](https://docs.anza.xyz/operations/requirements) for mainnet, testnet and devnet, respectively. You may also have a look at the community maintained [Solana Hardware Compatibility List](https://solanahcl.org/). This tutorial assumes a setup with three SSDs, which is the minimum recommendation for a mainnet validator.
 
-
 ## 3. Install and configure Ubuntu server
 
-First you need to [install Ubuntu server](https://documentation.ubuntu.com/server/tutorial/basic-installation/). Remember to check `[X] Install OpenSSH server` during the Ubuntu installation if you want to access your validator remotely. If you forget it during the main installation you can follow [this](https://documentation.ubuntu.com/server/how-to/security/openssh-server/index.html) guide afterwards. You can read about how to connect to the server remotely over SSH [here](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/).
+First you need to [install Ubuntu server](https://documentation.ubuntu.com/server/tutorial/basic-installation/). Remember to check `[X] Install OpenSSH server` during the Ubuntu installation if you want to access your validator remotely. If you forget it during the main installation you can follow [this](https://documentation.ubuntu.com/server/how-to/security/openssh-server/index.html) guide afterwards. You can read about how to connect to the server remotely over SSH in [this guide from howtogeek](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/).
 
 The first thing I do after logging in to a fresh install is to update it:
+
 ```bash
 sudo apt update && sudo apt upgrade --assume-yes
 ```
@@ -38,12 +36,14 @@ sudo apt update && sudo apt upgrade --assume-yes
 You will need to partition, format and mount any extra SSDs. If you don't know how, the internet is your friend. I will give you a few pointers, though. In my opinion, the easiest way to partition is by choosing `(X) Custom storage layout` during the Ubuntu installation. If you end up doing it after the installation, the process usually involves the following tools: [`lsblk`](https://manpages.ubuntu.com/manpages/noble/en/man8/lsblk.8.html), [`fdisk`](https://manpages.ubuntu.com/manpages/noble/en/man8/fdisk.8.html), [`mkfs`](https://manpages.ubuntu.com/manpages/noble/en/man8/mkfs.8.html), [`blkid`](https://manpages.ubuntu.com/manpages/noble/en/man8/blkid.8.html), [`fstab`](https://manpages.ubuntu.com/manpages/noble/en/man5/fstab.5.html), and [`mount`](https://manpages.ubuntu.com/manpages/noble/en/man8/mount.8.html).
 
 I have added an example of a functional partition layout with a corresponding `/etc/fstab` configuration below, based on three NVMe SSDs:
+
 - One for system, home, snapshots and swap
 - One for accounts data
 - One for ledger data
 
-#### Functional partition layout:
-```
+#### Functional partition layout
+
+```bash
 $ lsblk
 NAME        MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 nvme1n1     259:4    0 3.5T  0 disk
@@ -57,10 +57,12 @@ nvme3n1     259:6    0 3.5T  0 disk
 ├─nvme3n1p4 259:12   0 1.8T  0 part /mnt/snapshots
 └─nvme3n1p5 259:13   0 500G  0 part [SWAP]
 ```
+
 The large swap partition is not required. It is a safety valve, however, and will give you more time to act if the validator is about to run out of memory (OOM).
 
-#### Functional fstab configuration:
-```
+#### Functional fstab configuration
+
+```bash
 $ cat /etc/fstab
 # <file system>                          <mount point> <type> <options> <dump> <pass>
 UUID=0F93-AAF9                            /boot/efi      vfat defaults       0 1
@@ -72,26 +74,27 @@ UUID=38bb59b1-c07c-4e02-9c1f-f512d2d92d07 /mnt/ledger    ext4 noatime        0 0
 UUID=48f7f4ef-a475-4964-b2c2-277e1601ba98 none           swap sw             0 0
 ```
 
-
 ## 4. Create an unprivileged user
 
 During the Ubuntu installation you created a user with root privileges; a user that can perform `sudo` commands. This user is needed to administer the system. However, the Agave validator client does not require root privileges, and it is considered poor practice to run Agave as “root" or as another privileged user. You should therefore create an unprivileged user to run the validator client. For example the user "sol":
+
 ```bash
 sudo adduser sol
 ```
 
 Then you can switch to the new user account by running:
+
 ```bash
 sudo su - sol
 ```
 
 To get back to the admin user account you simply run:
+
 ```bash
 exit
 ```
 
 Using the `su` command makes it easy to switch between users without having to log out and back in. You can also open two separate terminal windows, each logged in as separate users. I have highlighted the applicable user account for each chapter below.
-
 
 ## 5. Install and configure Agave
 
@@ -99,25 +102,30 @@ Using the `su` command makes it easy to switch between users without having to l
 ! Perform as user “sol”
 ```
 
-Anza stopped providing validator binaries from Agave v3, so you have to build them yourself. Check out my short tutorial [here](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md) for that.
+Anza stopped providing validator binaries from Agave v3, so you have to build them yourself. Check out my short tutorial: [building solana from source](https://github.com/agjell/sol-tutorials/blob/master/building-solana-from-source.md).
 
 After you have built and installed Agave, close and reopen the terminal or log out and in again (as “sol”). This is done to load the environment variable that was added to `~/.profile` during the installation, which enables "sol" to run the `solana` and `agave` commands from any directory.
 
 Then configure the Agave client to target a cluster. You can specify "testnet" or "devnet" as well.
+
 ```bash
 solana config set --url mainnet-beta
 ```
 
 Verify that the cluster is reachable by running a command. For example:
+
 ```bash
 solana gossip
 ```
+
 It should return a list of validators.
 
 You can get information about any command by running `command --help` or `command subcommand --help`. For example
+
 ```bash
 solana --help
 ```
+
 ```bash
 solana config --help
 ```
@@ -146,6 +154,7 @@ When you run the command to create a keypair, you are prompted to enter a passph
 ### Wallet
 
 First create the wallet keypair:
+
 ```bash
 solana-keygen new --outfile ~/wallet-keypair.json
 ```
@@ -153,16 +162,19 @@ solana-keygen new --outfile ~/wallet-keypair.json
 ### Validator identity
 
 Second, create the validator identity keypair:
+
 ```bash
 solana-keygen new --outfile ~/validator-keypair.json
 ```
 
 Which can also be appended to the client configuration:
+
 ```bash
 solana config set --keypair ~/validator-keypair.json
 ```
 
 Because the validator pays the voting fees, you will need to transfer some SOL to its identity account (pubkey). There are many ways to do this. This is an example of how to transfer 1 SOL from the wallet to the validator, where the the transaction fee is deducted from the wallet:
+
 ```bash
 solana transfer --allow-unfunded-recipient \
   --fee-payer ~/wallet-keypair.json \
@@ -170,6 +182,7 @@ solana transfer --allow-unfunded-recipient \
 ```
 
 You can check the account balance by running:
+
 ```bash
 solana balance ~/validator-keypair.json
 ```
@@ -177,16 +190,19 @@ solana balance ~/validator-keypair.json
 ### Vote account
 
 Third, create the vote account keypair:
+
 ```bash
 solana-keygen new --outfile ~/vote-account-keypair.json
 ```
 
 Then you need to register the account as a vote account on the blockchain, and set an authorized withdrawer. In this example the transaction fee is deducted from the validator keypair, and the wallet is set as the authorized withdrawer:
+
 ```bash
 solana create-vote-account \
   --fee-payer ~/validator-keypair.json \
   ~/vote-account-keypair.json ~/validator-keypair.json ~/wallet-keypair.json
 ```
+
 That's it for keypairs!
 
 ## 7. Create startup script
@@ -198,6 +214,7 @@ Next up is to create a shell script that contains all the flags and options need
 ```
 
 Create the `start-validator.sh` script inside the home directory (`~/`) of “sol”:
+
 ```bash
 tee ~/start-validator.sh > /dev/null <<EOT
 #!/bin/bash
@@ -227,43 +244,41 @@ exec agave-validator \\
 EOT
 ```
 
-**Note 1:** The script is targeted to mainnet validators. I have listed the relevant flags for [testnet](#testnet-values-official-docs) and [devnet](#devnet-values-official-docs) at the **bottom of this chapter** for convenience.
+**Note 1:** The script is targeted to mainnet validators. I have listed the relevant flags for [testnet](#testnet-values-from-official-docs) and [devnet](#devnet-values-from-official-docs) at the **bottom of this chapter** for convenience.
 
 **Note 2:** "ledger", "accounts" and "snapshots" are all pointing to separate directories. The assumption is that every directory under `/mnt` has a dedicated SSD mounted to it.
 
 You need to make the script executable, or else it will not launch:
+
 ```bash
 chmod +x ~/start-validator.sh
 ```
 
 Adapt the script to your needs with any text editor. For example with `nano`:
+
 ```bash
 nano ~/start-validator.sh
 ```
 
 You can study all the validator options by running `agave-validator --help`. For example, to store the minimum amount of ledger you have to set `--limit-ledger-size 50000000`. If you are starting an RPC, you should add the `--no-voting` flag. Press **Ctrl+S** to save the file and **Ctrl+X** to exit if you are using Nano.
 
-
-
-
 Note that the script points to a “log” directory inside the home directory. Let’s create it:
+
 ```bash
 mkdir ~/log
 ```
 
 For convenience we can also create symbolic links to the "ledger", "accounts" and "snapshots" directories inside `~/`:
+
 ```bash
 ln --symbolic /mnt/ledger ~/ledger
-```
-```bash
 ln --symbolic /mnt/accounts ~/accounts
-```
-```bash
 ln --symbolic /mnt/snapshots ~/snapshots
 ```
 
 ### Testnet values (from [official docs](https://docs.anza.xyz/clusters/available#testnet))
-```
+
+```bash
   --entrypoint entrypoint.testnet.solana.com:8001 \
   --entrypoint entrypoint2.testnet.solana.com:8001 \
   --entrypoint entrypoint3.testnet.solana.com:8001 \
@@ -276,7 +291,8 @@ ln --symbolic /mnt/snapshots ~/snapshots
 ```
 
 ### Devnet values (from [official docs](https://docs.anza.xyz/clusters/available#devnet))
-```
+
+```bash
   --entrypoint entrypoint.devnet.solana.com:8001 \
   --entrypoint entrypoint2.devnet.solana.com:8001 \
   --entrypoint entrypoint3.devnet.solana.com:8001 \
@@ -296,6 +312,7 @@ ln --symbolic /mnt/snapshots ~/snapshots
 ```
 
 Running the validator as a system service makes it easy to start it automatically at boot. The system can also restart services automatically if they crash, as the service manager monitors all services continuously. Create the `validator.service` file like this:
+
 ```bash
 sudo tee /etc/systemd/system/validator.service > /dev/null <<EOT
 [Unit]
@@ -323,9 +340,11 @@ EOT
 **Note:** Remember to change the value for `User` and the path in `ExecStart` if you created a user with a different name.
 
 Then reload the service manager to make the system aware of the new service:
+
 ```bash
 sudo systemctl daemon-reload
 ```
+
 The validator service is now almost ready to run.
 
 ## 9. Tune system settings
@@ -335,6 +354,7 @@ The validator service is now almost ready to run.
 ```
 
 To ensure that the validator service is able to operate smoothly, you should apply some basic tuning before starting it. Copy and paste these into the terminal, and press **Enter**:
+
 ```bash
 sudo tee /etc/security/limits.d/90-solana-nofiles.conf > /dev/null <<EOT
 # Increase process file descriptor count limit
@@ -364,6 +384,7 @@ EOT
 ```
 
 Then load the new settings.
+
 ```bash
 sudo sysctl --system
 ```
@@ -377,6 +398,7 @@ Just one more step before take-off.
 ```
 
 `agave-validator` produces **big** logs. To make the logs easier to handle it's best to rotate them every day. “Logrotate” takes care of the log rotation for us. It automatically creates a new log at 00:00 and deletes the excess. This configuration will retain 7 days worth of logs:
+
 ```bash
 sudo tee /etc/logrotate.d/solana > /dev/null <<EOT
 /home/sol/log/validator.log {
@@ -392,9 +414,11 @@ EOT
 ```
 
 Restart the logrotate service to load the new configuration:
+
 ```bash
 sudo systemctl restart logrotate
 ```
+
 Log rotation is now active.
 
 ## 11. Start the validator
@@ -404,13 +428,17 @@ Log rotation is now active.
 ```
 
 After completing all the steps above I usually reboot (`sudo reboot`), although I suppose it’s not really necessary. It's still nice to verify that all SSDs are mounted correctly on boot. When you're ready you can start the service:
+
 ```bash
 sudo systemctl enable --now validator.service
 ```
+
 Then check if it started successfully and is running:
+
 ```bash
 sudo systemctl status validator.service
 ```
+
 It should say “active (running)”.
 
 ## 12. Monitor the validator
@@ -420,17 +448,21 @@ It should say “active (running)”.
 ```
 
 After starting the validator service I switch to "sol" again and start monitoring the start-up:
+
 ```bash
 agave-validator --ledger ~/ledger monitor
 ```
+
 The monitoring tool tells us what the validator is doing. It can take a very long time to start up the validator for the first time. The validator does roughly this:
+
 1. Looks for an available RPC node (can take a long time)
 1. Downloads snapshot (~90 GB for mainnet)
 1. Loads ledger state from snapshot
 1. Catches up to the cluster
 
 It's not uncommon for this to take at least half an hour on mainnet. When everything is up and running the reply from the monitor command should look similar to this:
-```
+
+```bash
 $ agave-validator --ledger ~/ledger monitor
 Ledger location: /home/sol/ledger
 Identity: NordEHiwa6wT5TCjdeWJzpsA7DSmWQPqfSS7m2b6cv3
@@ -443,12 +475,15 @@ TPU Address: 64.130.53.58:8006
 ```
 
 You can then run the command below to see if the validator has caught up to the cluster. If the validator is not caught up, it will display the progress. The command will fail if the validator is still loading the ledger from snapshot.
+
 ```bash
 solana catchup --keypair ~/validator-keypair.json --our-localhost
 ```
 
 If you need to troubleshoot you can look for warnings and errors in the log:
+
 ```bash
 grep --extended-regexp 'ERROR|WARN' ~/log/validator.log
 ```
+
 Fell free to post an issue or give me feedback through Discord. All constructive feedback is welcome!
